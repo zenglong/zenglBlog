@@ -1,0 +1,16 @@
+use builtin, request, mysql, session;
+def TRUE 1;
+def FALSE 0;
+
+cookies = rqtGetCookie();
+sess_data = sessGetData(bltStr(&cookies['ADM_SESSION']));
+if(bltCount(sess_data) == 0)
+	rqtSetResponseHeader("HTTP/1.1 302 Moved Temporarily");
+	rqtSetResponseHeader("Location: login.zl");
+endif
+
+data['title'] = '后台管理';
+data['username'] = sess_data['username'];
+data['nickname'] = sess_data['nickname'];
+print bltMustacheFileRender("tpl/admin.tpl", data);
+

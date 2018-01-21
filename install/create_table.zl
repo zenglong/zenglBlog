@@ -1,0 +1,55 @@
+use builtin, mysql;
+inc '../config.zl';
+
+fun finish_with_error(con)
+	data['error'] = mysqlError(con);
+	mysqlClose(con);
+	print bltMustacheFileRender("error.tpl",data);
+	bltExit(data['error']);
+endfun
+
+con = mysqlInit();
+if(!mysqlRealConnect(con, config['db_host'], config['db_user'], 
+			config['db_passwd'], config['db_name'], config['db_port']))
+	finish_with_error(con);
+endif
+
+// 设置mysql字符集为utf8
+if(mysqlSetCharacterSet(con, "utf8"))
+	finish_with_error(con);
+endif
+
+if(mysqlQuery(con, "DROP TABLE IF EXISTS users"))
+	finish_with_error(con);
+endif
+if(mysqlQuery(con, "CREATE TABLE users(
+					  id int NOT NULL AUTO_INCREMENT, 
+					  username varchar(255) NOT NULL DEFAULT '' COMMENT '用户名', 
+					  password varchar(32) NOT NULL DEFAULT '' COMMENT '密码', 
+					  nickname varchar(40) NOT NULL DEFAULT '' COMMENT '用户昵称',
+					  PRIMARY KEY (id)
+					) ENGINE=MyISAM DEFAULT CHARSET utf8 COLLATE utf8_general_ci COMMENT='用户表'"))
+	finish_with_error(con);
+endif
+
+data['username'] = 'admin';
+data['nickname'] = '管理员';
+data['password'] = 'admin@123456';
+
+if(mysqlQuery(con, "INSERT INTO users (`username`,`password`,`nickname`) VALUES('" +
+					mysqlRealEscapeString(con,data['username']) + "', '" +
+					mysqlRealEscapeString(con,bltMd5(data['password'])) + "', '" + 
+					mysqlRealEscapeString(con,data['nickname']) + "')")
+	)
+	finish_with_error(con);
+endif
+
+data['mysql_client_info'] = mysqlGetClientInfo();
+server_version = mysqlGetServerVersion(con);
+data['mysql_server_version'] = server_version[0] + '.' + server_version[1] + '.' + server_version[2];
+data['mysql_charset'] = mysqlCharacterSetName(con);
+
+print bltMustacheFileRender("create_table.tpl",data);
+
+mysqlClose(con);
+
