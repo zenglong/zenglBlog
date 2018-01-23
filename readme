@@ -1,0 +1,15 @@
+nginx反向代理的基本配置：
+
+server {
+     listen 80;
+     server_name blog.zengl.dev;
+     root /home/zengl/zenglBlog;
+     index index.zl;
+
+     location ~ \.zl$ {
+         proxy_pass   http://127.0.0.1:8083;
+         break;
+     }
+     access_log /usr/local/nginx/logs/www/zengl/blog.log jflog;
+}
+

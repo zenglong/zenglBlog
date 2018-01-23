@@ -9,6 +9,7 @@ sess_data = sessGetData(bltStr(&cookies['ADM_SESSION']));
 if(bltCount(sess_data) > 0)
 	rqtSetResponseHeader("HTTP/1.1 302 Moved Temporarily");
 	rqtSetResponseHeader("Location: admin.zl");
+	bltExit();
 endif
 
 posts = rqtGetBodyAsArray();
