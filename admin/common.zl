@@ -1,0 +1,27 @@
+use builtin, request, mysql, session;
+def TRUE 1;
+def FALSE 0;
+inc '../config.zl';
+inc '../mysql.zl';
+
+cookies = rqtGetCookie();
+sess_data = sessGetData(bltStr(&cookies['ADM_SESSION']));
+if(bltCount(sess_data) == 0)
+	rqtSetResponseHeader("HTTP/1.1 302 Moved Temporarily");
+	rqtSetResponseHeader("Location: login.zl");
+	bltExit();
+endif
+
+menus = bltJsonDecode('[
+	{"link": "admin.zl", "name": "概览"},
+	{"link": "user_list.zl", "name": "用户列表"},
+]');
+
+fun setCurMenu(menus, cur_menu)
+	for(i=0;bltIterArray(menus,&i,&menu);)
+		if(menu['link'] == cur_menu)
+			menu['cur'] = 'yes';
+			break;
+		endif
+	endfor
+endfun

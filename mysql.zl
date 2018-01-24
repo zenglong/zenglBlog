@@ -37,5 +37,19 @@ class Mysql
 		mysqlFreeResult(result);
 		return result_array;
 	endfun
+
+	fun fetchAll(obj, sql)
+		Mysql obj;
+		if(mysqlQuery(obj.con, sql))
+			Mysql.error(obj);
+		endif
+		result = mysqlStoreResult(obj.con);
+		return_array = bltArray();
+		while(mysqlFetchResultRow(result, &result_array))
+			return_array[] = result_array;
+		endwhile
+		mysqlFreeResult(result);
+		return return_array;
+	endfun
 endclass
 

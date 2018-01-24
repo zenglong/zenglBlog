@@ -1,0 +1,10 @@
+inc 'common.zl';
+
+Mysql db;
+db = bltArray();
+Mysql.init(db, config, "tpl/error.tpl");
+data['title'] = '用户列表:';
+data['users'] = Mysql.fetchAll(db, "select * from users");
+setCurMenu(menus, 'user_list.zl');
+data['menus'] = menus;
+print bltMustacheFileRender("tpl/user_list.tpl", data);
