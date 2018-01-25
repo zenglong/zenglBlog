@@ -1,5 +1,10 @@
 use builtin, request, session;
 
+cookies = rqtGetCookie();
+sess_data = sessGetData(bltStr(&cookies['ADM_SESSION']));
+if(bltCount(sess_data) > 0)
+	sessDelete(cookies['ADM_SESSION']);
+endif
 rqtSetResponseHeader("HTTP/1.1 302 Moved Temporarily");
 rqtSetResponseHeader("Location: login.zl");
 rqtSetResponseHeader("Set-Cookie: ADM_SESSION=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;");

@@ -23,12 +23,13 @@ else
 	db = bltArray();
 	Mysql.init(db, config, "tpl/error.tpl");
 	result = Mysql.fetchOne(db, "select * from users where username='" + 
-					mysqlRealEscapeString(db.con, bltStr(&posts['username'])) + "'");
+					mysqlRealEscapeString(db.con, posts['username']) + "'");
 	data['msg'] = 'failed';
+	data['errmsg'] = '用户名或密码错误！';
 	if(bltCount(result) > 0)
-		if(posts['username'] == result['username'] && 
-			bltMd5(posts['password']) == result['password'])
+		if(bltMd5(posts['password']) == result['password'])
 			data['msg'] = 'success';
+			bltUnset(&data['errmsg']);
 			sess_data['username'] = result['username'];
 			sess_data['nickname'] = result['nickname'];
 			sess_id = sessMakeId();
