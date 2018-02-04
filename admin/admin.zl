@@ -17,6 +17,7 @@ data['zenglServerVersion'] = bltGetZenglServerVersion();
 data['zenglServerVersion'] = data['zenglServerVersion', 0] + '.' + data['zenglServerVersion', 1] + '.' + data['zenglServerVersion', 2];
 data['zenglVersion'] = bltGetZenglVersion();
 data['zenglVersion'] = data['zenglVersion', 0] + '.' + data['zenglVersion',1] + '.' + data['zenglVersion',2];
+data['blogVersion'] = config['version'];
 setCurMenu(menus, 'admin.zl');
 data['menus'] = menus;
 print bltMustacheFileRender("tpl/admin.tpl", data);

@@ -29,6 +29,10 @@
 			<td>zengl语言版本</td>
 			<td>{{zenglVersion}}</td>
 		</tr>
+		<tr>
+			<td>zenglBlog版本</td>
+			<td>{{blogVersion}}</td>
+		</tr>
 	  </tbody>
 	</table>
 </div>
