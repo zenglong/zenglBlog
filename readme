@@ -82,6 +82,30 @@ server {
 
 使用上面nginx配置后(同时将blog.zengl.dev通过hosts之类的绑定了ip)，直接访问 http://blog.zengl.dev 就可以看到hello world!页面(因为上面nginx配置的默认首页是index.zl)，访问 http://blog.zengl.dev/admin/login.zl 可以看到后台登录页面，输入用户名和密码，点击登录，可以进入到 http://blog.zengl.dev/admin/admin.zl 的后台管理页面。点击后台界面右上角的登出，可以退出登录。
 
+如果在新版本的Chrome浏览器中 http://blog.zengl.dev 被跳转到了 https://blog.zengl.dev 的话，可以将.dev替换为.test或者.example，原因可以参考 http://blog.justwe.site/2017/12/19/chrome-redirection-https/ 或者 https://iyware.com/dont-use-dev-for-development/ 对应的文章。
+
+要使用https访问zenglServer的话，也可以通过nginx的反向代理来实现：
+
+server {
+     listen 80;
+     listen 443 ssl;
+
+     ssl_certificate /usr/local/nginx/cert/blog.zengl.test.crt;
+     ssl_certificate_key /usr/local/nginx/cert/blog.zengl.test.key;
+
+     server_name blog.zengl.test;
+     root /home/zengl/zenglBlog;
+     index index.zl;
+
+     location ~ \.zl$ {
+         proxy_pass   http://127.0.0.1:8083;
+         proxy_set_header   X-real-ip $remote_addr;
+         proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+         break;
+     }
+     access_log /usr/local/nginx/logs/www/zengl/blog.log jflog;
+}
+
 作者：zenglong
 官网：www.zengl.com
 
