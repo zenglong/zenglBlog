@@ -1,7 +1,7 @@
 class Mysql
 	con;
 	error_tpl;
-	fun error(obj)
+	fun error(obj, sql='')
 		Mysql obj;
 		data['error'] = mysqlError(obj.con);
 		mysqlClose(obj.con);
@@ -9,7 +9,7 @@ class Mysql
 			data['title'] = 'Mysql错误';
 			print bltMustacheFileRender(obj.error_tpl,data);
 		endif
-		bltExit(data['error']);
+		bltExit(data['error'] + (sql ? ' sql: ' + sql : ''));
 	endfun
 
 	fun init(obj, config, error_tpl)
@@ -50,6 +50,54 @@ class Mysql
 		endwhile
 		mysqlFreeResult(result);
 		return return_array;
+	endfun
+
+	fun Escape(obj, str)
+		Mysql obj;
+		return mysqlRealEscapeString(obj.con, bltStr(str));
+	endfun
+
+	fun Insert(obj, table, datas)
+		Mysql obj;
+		vals = keys = '';
+		len = bltCount(datas);
+		for(i=0;bltIterArray(datas,&i,&k,&v);)
+			keys += "`" + Mysql.Escape(obj, k) + "`";
+			vals += "'" + Mysql.Escape(obj, v) + "'";
+			if(i < len)
+				keys += ',';
+				vals += ',';
+			endif
+		endfor
+		if(len > 0)
+			sql = "INSERT INTO `"+table+"` (" + keys + ") VALUES (" + vals + ")";
+			if(mysqlQuery(obj.con, sql))
+				Mysql.error(obj);
+			endif
+		endif
+	endfun
+
+	fun Update(obj, table, datas, where = '')
+		Mysql obj;
+		key_vals = '';
+		len = bltCount(datas);
+		for(i=0;bltIterArray(datas,&i,&k,&v);)
+			key_vals += "`" + Mysql.Escape(obj, k) + "`=" + "'" + Mysql.Escape(obj, v) + "'";
+			if(i < len) key_vals += ','; endif
+		endfor
+		if(len > 0)
+			sql = "UPDATE `"+table+"` SET " + key_vals + (where != '' ? ' WHERE ' + where : '');
+			if(mysqlQuery(obj.con, sql))
+				Mysql.error(obj, sql);
+			endif
+		endif
+	endfun
+
+	fun Exec(obj, sql)
+		Mysql obj;
+		if(mysqlQuery(obj.con, sql))
+			Mysql.error(obj);
+		endif
 	endfun
 endclass
 

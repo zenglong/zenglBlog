@@ -1,0 +1,212 @@
+inc 'common.zl';
+
+querys = rqtGetQuery();
+action = querys['act'] ? querys['act'] : 'list';
+if(action == 'list')
+	Category.list();
+elif(action == 'ajaxList')
+	Category.ajaxList();
+elif(action == 'add')
+	Category.add();
+elif(action == 'edit')
+	Category.edit();
+elif(action == 'ajaxDelete')
+	Category.ajaxDelete();
+else
+	print 'invalid act';
+endif
+
+class Category
+	// 根据pid获取分类列表
+	fun getListByPid(db, pid, field="")
+		field = field ? field : "id,name,description,pid,childcnt,type";
+		where = pid >= 0 ? ' where pid='+pid : '';
+		return Mysql.fetchAll(db, "select "+field+" from category "+where + " order by id asc");
+	endfun
+
+	// 根据分类id获取分类信息
+	fun getCateInfo(db, id, field="")
+		field = field ? field : "*";
+		return Mysql.fetchOne(db, "select "+field+" from category where id="+id);
+	endfun
+
+	// 初始化数据库连接
+	fun initDB()
+		global config;
+		db = bltArray();
+		Mysql.init(db, config, "tpl/error.tpl");
+		return db;
+	endfun
+
+	// 异步加载分类列表
+	fun ajaxList()
+		global querys;
+		db = Category.initDB();
+		pid = querys['pid'] ? bltInt(querys['pid']) : 0;
+		categories = Category.getListByPid(db, pid, "id,name,childcnt");
+		for(i=0;bltIterArray(categories,&i,&v);)
+			bltHtmlEscape(&v['name'], TRUE);
+			bltHtmlEscape(&v['description'], TRUE);
+		endfor
+		rqtSetResponseHeader("Content-Type: application/json");
+		print bltJsonEncode(categories);
+	endfun
+
+	// ajax返回成功或失败
+	fun ajaxReturn(errmsg = '')
+		ret['msg'] = errmsg ? 'failed' : 'success';
+		ret['errmsg'] = errmsg;
+		rqtSetResponseHeader("Content-Type: application/json");
+		print bltJsonEncode(ret);
+		bltExit();
+	endfun
+
+	// 异步ajax删除某个分类
+	fun ajaxDelete()
+		global querys;
+		db = Category.initDB();
+		id = querys['id'] ? bltInt(querys['id']) : 0;
+		if(id <= 0) 
+			Category.ajaxReturn('无效的分类id'); 
+		endif
+		cateinfo = Category.getCateInfo(db, id);
+		if(cateinfo['childcnt'] > 0) 
+			Category.ajaxReturn('该分类包含子分类，需要先删除子分类');
+		endif
+		Mysql.Exec(db, "DELETE FROM category WHERE id="+id);
+		Category.updateChildCnt(db, cateinfo['pid']);
+		Category.ajaxReturn();
+	endfun
+
+	// 显示分类列表
+	fun list()
+		global menus, querys;
+		pid = querys['pid'] ? bltInt(querys['pid']) : 0;
+		db = Category.initDB();
+		data['title'] = '分类列表:';
+		data['categories'] = Category.getListByPid(db, pid);
+		if(pid > 0)
+			data['category'] = Category.getCateInfo(db, pid);
+			// 如果父分类中的childcnt字段的值，和实际读取出来的子分类的数量不一致的话，则更新父分类的childcnt值
+			if(data['category', 'childcnt'] != bltCount(data['categories']))
+				Category.updateChildCnt(db, pid);
+			endif
+			bltHtmlEscape(&data['category', 'name'], TRUE);
+		endif
+		for(i=0;bltIterArray(data['categories'],&i,&v);)
+			switch(v['type'])
+			case 0:
+				v['type_name'] = '普通文章';
+				break;
+			case 1:
+				v['type_name'] = '外部链接';
+				break;
+			default:
+				v['type_name'] = '未知类型';
+			endswitch
+			bltHtmlEscape(&v['name'], TRUE);
+			bltHtmlEscape(&v['description'], TRUE);
+		endfor
+		setCurMenu(menus, 'category.zl');
+		data['menus'] = menus;
+		if(pid==0)
+			data['pid_title'] = '顶层';
+		elif(pid < 0)
+			data['pid_title'] = '所有';
+		endif
+		print bltMustacheFileRender("tpl/category_list.tpl", data);
+	endfun
+
+	// 显示添加分类页面
+	fun showAdd(db, data, posts = 0, isadd = TRUE)
+		global menus;
+		setCurMenu(menus, 'category.zl');
+		csses[] = 'category_add.css';
+		data['csses'] = csses;
+		data['menus'] = menus;
+		data['title'] = isadd ? '添加分类' : '编辑分类';
+		data['act'] = isadd ? 'add' : 'edit';
+		if(posts && posts['pid'] > 0)
+			data['category'] = Category.getCateInfo(db, bltInt(posts['pid']), "id,name");
+			bltHtmlEscape(&data['category', 'name'], TRUE);
+		else
+			data['categories'] = Category.getListByPid(db, 0, "id,name,childcnt");
+			for(i=0;bltIterArray(data['categories'],&i,&v);)
+				bltHtmlEscape(&v['name'], TRUE);
+				bltHtmlEscape(&v['description'], TRUE);
+			endfor
+		endif
+		bltHtmlEscape(&posts['name'], TRUE);
+		bltHtmlEscape(&posts['description'], TRUE);
+		print bltMustacheFileRender("tpl/category_add.tpl",data);
+	endfun
+
+	// 校验数据
+	fun validate(db, data, posts, isadd = TRUE)
+		bltStr(&posts['name'], TRUE);
+		bltStr(&posts['description'], TRUE);
+		if(!posts['name'])
+			data['err_msg'] = '分类名称不能为空';
+		elif(!isadd && !posts['id'])
+			data['err_msg'] = '无效的分类ID';
+		endif
+		if(data['err_msg'])
+			data['posts'] = posts;
+			if(posts['id'])
+				data['id'] = posts['id'];
+			endif
+			Category.showAdd(db, data, posts, isadd);
+			bltExit();
+		endif
+	endfun
+
+	// 更新某个分类的子分类数量
+	fun updateChildCnt(db, pid)
+		if(pid > 0)
+			ret = Mysql.fetchOne(db, "select count(1) as childcnt from category where pid="+pid);
+			Mysql.Exec(db, "UPDATE category SET childcnt = '"+ret['childcnt']+"' where id="+pid);
+		endif
+	endfun
+
+	// 添加分类
+	fun add()
+		posts = rqtGetBodyAsArray();
+		db = Category.initDB();
+		if(posts['submit'])
+			Category.validate(db, data, posts);
+			bltUnset(&posts['submit']);
+			Mysql.Insert(db, 'category', posts);
+			Category.updateChildCnt(db, bltInt(posts['pid']));
+			data['success_msg'] = '添加分类成功';
+		endif
+		Category.showAdd(db, data);
+	endfun
+
+	// 编辑分类
+	fun edit()
+		global querys;
+		posts = rqtGetBodyAsArray();
+		db = Category.initDB();
+		if(posts['submit'])
+			id = bltInt(posts['id']);
+			Category.validate(db, data, posts, FALSE);
+			oldinfo = Category.getCateInfo(db, id, "pid");
+			bltUnset(&posts['submit']);
+			Mysql.Update(db, 'category', posts, 'id=' + id);
+			if(oldinfo['pid'] != bltInt(&posts['pid'], TRUE))
+				Category.updateChildCnt(db, posts['pid']);
+				Category.updateChildCnt(db, oldinfo['pid']);
+			endif
+			data['success_msg'] = '编辑分类成功';
+		else
+			id = bltInt(querys['id']);
+		endif
+		data['posts'] = Category.getCateInfo(db, id);
+		if(!bltCount(data['posts']))
+			data['err_msg'] = '无效的分类ID';
+			id = 0;
+		endif
+		data['id'] = id;
+		Category.showAdd(db, data, data['posts'], FALSE);
+	endfun
+endclass

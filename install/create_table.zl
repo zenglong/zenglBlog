@@ -19,6 +19,7 @@ if(mysqlSetCharacterSet(con, "utf8"))
 	finish_with_error(con);
 endif
 
+// 创建后台管理用户表
 if(mysqlQuery(con, "DROP TABLE IF EXISTS users"))
 	finish_with_error(con);
 endif
@@ -29,6 +30,22 @@ if(mysqlQuery(con, "CREATE TABLE users(
 					  nickname varchar(40) NOT NULL DEFAULT '' COMMENT '用户昵称',
 					  PRIMARY KEY (id)
 					) ENGINE=MyISAM DEFAULT CHARSET utf8 COLLATE utf8_general_ci COMMENT='用户表'"))
+	finish_with_error(con);
+endif
+
+// 创建分类表
+if(mysqlQuery(con, "DROP TABLE IF EXISTS category"))
+	finish_with_error(con);
+endif
+if(mysqlQuery(con, "CREATE TABLE category(
+					  id int NOT NULL AUTO_INCREMENT, 
+					  name varchar(100) NOT NULL DEFAULT '' COMMENT '分类名', 
+					  description varchar(255) NOT NULL DEFAULT '' COMMENT '分类描述',
+					  pid int NOT NULL DEFAULT '0' COMMENT '上级分类ID', 
+					  childcnt int NOT NULL DEFAULT '0' COMMENT '子分类数量',
+					  type tinyint NOT NULL DEFAULT '0' COMMENT '类型:0表示普通文章,1表示外部链接',
+					  PRIMARY KEY (id)
+					) ENGINE=MyISAM DEFAULT CHARSET utf8 COLLATE utf8_general_ci COMMENT='分类表'"))
 	finish_with_error(con);
 endif
 
