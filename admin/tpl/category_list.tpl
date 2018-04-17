@@ -45,9 +45,10 @@ $('.del_category').click(function(){
 	var next_span = $(this).next('span');
 	var r = confirm("删除确认");
 	if(r == true) {
+		var timestamp = new Date().getTime(); //IE浏览器ajax GET请求有缓存问题！
 		$.ajax({
 			type: 'GET',
-			url: "category.zl",
+			url: "category.zl?timestamp="+timestamp,
 			dataType: "json",
 			data: {
 				"act": "ajaxDelete",

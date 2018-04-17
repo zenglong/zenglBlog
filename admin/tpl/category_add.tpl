@@ -45,9 +45,10 @@
 $( document ).ready(function() {
 {{#category}} {{! 如果设置了上级分类，则添加重置上级分类的脚本 }}
 $('#reset_category').click(function(){
+	var timestamp = new Date().getTime(); //IE浏览器ajax GET请求有缓存问题！
 	$.ajax({
 		type: 'GET',
-		url: "category.zl",
+		url: "category.zl?timestamp="+timestamp,
 		dataType: "json",
 		data: {
 			"act": "ajaxList",
@@ -99,9 +100,10 @@ $("#cate_form").on('change', ".sel_pid", function(){
 	if(this.value <= 0 || childcnt <= 0)
 		return ;
 	var that = this;
+	var timestamp = new Date().getTime(); //IE浏览器ajax GET请求有缓存问题！
 	$.ajax({
 		type: 'GET',
-		url: "category.zl",
+		url: "category.zl?timestamp="+timestamp,
 		dataType: "json",
 		data: {
 			"act": "ajaxList",
