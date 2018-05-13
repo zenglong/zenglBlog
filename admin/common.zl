@@ -16,6 +16,7 @@ menus = bltJsonDecode('[
 	{"link": "admin.zl", "name": "概览"},
 	{"link": "user_list.zl", "name": "用户列表"},
 	{"link": "category.zl", "name": "分类列表"},
+	{"link": "article.zl", "name": "文章列表"},
 ]');
 
 fun setCurMenu(menus, cur_menu)

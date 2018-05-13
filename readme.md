@@ -15,17 +15,17 @@ session_expire = 1440; // 会话默认超时时间(以秒为单位)，可以根�
 session_cleaner_interval = 3600; // 会话文件清理进程的清理时间间隔(以秒为单位)
 ```
 
-然后运行zenglServer(v0.2.0的zenglBlog对zenglServer的最低版本要求是v0.10.1)：
+然后运行zenglServer(v0.3.0的zenglBlog对zenglServer的最低版本要求是v0.11.0，需要开启mysql和magick模块)：
 
 ```
 zengl@zengl-ubuntu:~/zenglServer$ ./zenglServer -v
-zenglServer version: v0.10.1
+zenglServer version: v0.11.0
 zengl language version: v1.8.1
 zengl@zengl-ubuntu:~/zenglServer$ ./zenglServer
 zengl@zengl-ubuntu:~/zenglServer$ tail -f logfile 
 webroot: /home/zengl/zenglBlog
 session_dir: my_sessions session_expire: 1440 cleaner_interval: 3600
-remote_debug_enable: False remote_debugger_ip: 127.0.0.1 remote_debugger_port: 9999 zengl_cache_enable: False
+remote_debug_enable: False remote_debugger_ip: 127.0.0.1 remote_debugger_port: 9999 zengl_cache_enable: False shm_enable: False shm_min_size: 307200
 bind done
 accept sem initialized.
 process_max_open_fd_num: 1024 
@@ -49,7 +49,7 @@ config['db_port'] = 3306;        // 填写mysql数据库端口
 config['db_user'] = 'root';      // 填写mysql用户名
 config['db_passwd'] = '123456';  // 填写mysql密码
 config['db_name'] = 'testdb';    // 填写mysql数据库名
-config['version'] = '0.2.0';     // zenglBlog版本号，无需修改
+config['version'] = '0.3.0';     // zenglBlog版本号，无需修改
 ```
 
 需要确保上面数据库配置的正确性，如果没有创建过testdb，就先创建该数据库
@@ -57,9 +57,9 @@ config['version'] = '0.2.0';     // zenglBlog版本号，无需修改
 配置完后，访问 http://10.7.20.220:8083/install/create_table.zl 该脚本会自动在数据库中创建所需的表结构，例如 users(用户表)，并在users表中插入一条初始数据，该脚本执行成功后，会返回用户名，密码之类的信息，如下所示：
 
 ```
-mysql客户端库的版本信息：5.7.19
+mysql客户端库的版本信息：5.7.22
 
-mysql服务端的版本号信息：5.7.19
+mysql服务端的版本号信息：5.7.22
 
 mysql当前设置的字符集：utf8
 
@@ -68,7 +68,11 @@ mysql当前设置的字符集：utf8
 密码：admin@123456
 
 用户昵称：管理员
+
+写入install.lock安装锁文件
 ```
+
+安装会生成install.lock锁文件，以防止误操作，在有锁文件的情况下，执行create_table.zl脚本，会提示lock file exists，并阻止脚本继续执行
 
 接着使用 admin 和 admin@123456 通过 http://10.7.20.220:8083/admin/login.zl 登录后台
 

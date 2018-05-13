@@ -1,6 +1,13 @@
 use builtin, mysql;
 inc '../config.zl';
 
+install_lock_file = 'install.lock';
+
+if(bltFileExists(install_lock_file))
+	print 'lock file exists';
+	bltExit();
+endif
+
 fun finish_with_error(con)
 	data['error'] = mysqlError(con);
 	mysqlClose(con);
@@ -49,6 +56,25 @@ if(mysqlQuery(con, "CREATE TABLE category(
 	finish_with_error(con);
 endif
 
+// 创建文章表
+if(mysqlQuery(con, "DROP TABLE IF EXISTS article"))
+	finish_with_error(con);
+endif
+if(mysqlQuery(con, "CREATE TABLE article(
+	id int NOT NULL AUTO_INCREMENT, 
+	title varchar(100) NOT NULL DEFAULT '' COMMENT '文章标题', 
+	description varchar(255) NOT NULL DEFAULT '' COMMENT '文章描述',
+	thumbnail varchar(255) NOT NULL DEFAULT '' COMMENT '文章缩略图', 
+	author varchar(100) NOT NULL DEFAULT '' COMMENT '文章作者', 
+	cid int NOT NULL DEFAULT '0' COMMENT '分类ID', 
+	content mediumtext NOT NULL COMMENT '文章内容',
+	`created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
+ 	`updated_at` timestamp NULL DEFAULT NULL COMMENT '更新时间',
+	PRIMARY KEY (id)
+	) ENGINE=MyISAM DEFAULT CHARSET utf8 COLLATE utf8_general_ci COMMENT='文章表'"))
+	finish_with_error(con);
+endif
+
 data['username'] = 'admin';
 data['nickname'] = '管理员';
 data['password'] = 'admin@123456';
@@ -65,6 +91,9 @@ data['mysql_client_info'] = mysqlGetClientInfo();
 server_version = mysqlGetServerVersion(con);
 data['mysql_server_version'] = server_version[0] + '.' + server_version[1] + '.' + server_version[2];
 data['mysql_charset'] = mysqlCharacterSetName(con);
+
+bltWriteFile(install_lock_file, bltDate("%Y%m%d %H:%M:%S"));
+data['install_lock_file'] = install_lock_file;
 
 print bltMustacheFileRender("create_table.tpl",data);
 

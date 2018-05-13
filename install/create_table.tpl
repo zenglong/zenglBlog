@@ -10,5 +10,6 @@
 <p>用户名：{{username}}</p>
 <p>密码：{{password}}</p>
 <p>用户昵称：{{nickname}}</p>
+<p>写入{{install_lock_file}}安装锁文件</p>
 </body>
 </html>

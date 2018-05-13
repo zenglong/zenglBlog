@@ -1,0 +1,53 @@
+// ajax返回成功或失败
+fun ajax_return(errmsg = '')
+	ret['msg'] = errmsg ? 'failed' : 'success';
+	ret['errmsg'] = errmsg;
+	rqtSetResponseHeader("Content-Type: application/json");
+	print bltJsonEncode(ret);
+	bltExit();
+endfun
+
+/**
+ * 获取分页相关的信息，第一个参数per表示一页显示多少条记录，total表示总记录数
+ * showpage表示需要显示的分页数，link表示需要访问的地址，以问号结尾
+ */
+fun get_page(per, total, showpage, link = '?')
+	global querys;
+	totalpage = bltInt(total/per); // 根据总记录数和每页需要显示的记录数计算总页数
+	if(total % per > 0) // 如果有余数则将总页数加一
+		totalpage++;
+	endif
+	half = bltInt(showpage / 2);
+	curpage = bltInt(querys['page']); // 从查询字符串中获取page也就是当前分页
+	if(curpage < 1)
+		curpage = 1;
+	elif(curpage > totalpage)
+		curpage = totalpage;
+	endif
+	start = curpage - half; // 计算起始页号
+	if(start < 1) 
+		start = 1; 
+	endif
+	end = curpage + half; // 计算结束页号
+	if(end > totalpage)
+		end = totalpage;
+	endif
+	for(i=0;bltIterArray(querys,&i,&k,&v);) // 获取不包括page在内的查询字符串
+		if(k != 'page')
+			link += k + '=' + v + '&';
+		endif
+	endfor
+	// 将分页信息存储到ret返回
+	ret['start'] = start;
+	ret['end'] = end;
+	ret['offset'] = (curpage - 1) * per;
+	ret['limit'] = per;
+	ret['prev'] = (curpage <= 1) ? 1 : (curpage - 1); // 计算上一页
+	ret['next'] = (curpage >= totalpage) ? totalpage : (curpage + 1); // 计算下一页
+	ret['total'] = total;
+	ret['totalpage'] = totalpage;
+	ret['curpage'] = curpage;
+	ret['link'] = link;
+	return ret;
+endfun
+

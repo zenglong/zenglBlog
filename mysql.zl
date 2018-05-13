@@ -41,7 +41,7 @@ class Mysql
 	fun fetchAll(obj, sql)
 		Mysql obj;
 		if(mysqlQuery(obj.con, sql))
-			Mysql.error(obj);
+			Mysql.error(obj, sql);
 		endif
 		result = mysqlStoreResult(obj.con);
 		return_array = bltArray();
@@ -61,10 +61,10 @@ class Mysql
 		Mysql obj;
 		vals = keys = '';
 		len = bltCount(datas);
-		for(i=0;bltIterArray(datas,&i,&k,&v);)
+		for(i=0,j=0;bltIterArray(datas,&i,&k,&v);)
 			keys += "`" + Mysql.Escape(obj, k) + "`";
 			vals += "'" + Mysql.Escape(obj, v) + "'";
-			if(i < len)
+			if(++j < len)
 				keys += ',';
 				vals += ',';
 			endif
@@ -72,7 +72,7 @@ class Mysql
 		if(len > 0)
 			sql = "INSERT INTO `"+table+"` (" + keys + ") VALUES (" + vals + ")";
 			if(mysqlQuery(obj.con, sql))
-				Mysql.error(obj);
+				Mysql.error(obj, sql);
 			endif
 		endif
 	endfun
@@ -81,9 +81,9 @@ class Mysql
 		Mysql obj;
 		key_vals = '';
 		len = bltCount(datas);
-		for(i=0;bltIterArray(datas,&i,&k,&v);)
+		for(i=0,j=0;bltIterArray(datas,&i,&k,&v);)
 			key_vals += "`" + Mysql.Escape(obj, k) + "`=" + "'" + Mysql.Escape(obj, v) + "'";
-			if(i < len) key_vals += ','; endif
+			if(++j < len) key_vals += ','; endif
 		endfor
 		if(len > 0)
 			sql = "UPDATE `"+table+"` SET " + key_vals + (where != '' ? ' WHERE ' + where : '');

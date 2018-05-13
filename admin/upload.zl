@@ -1,0 +1,123 @@
+inc 'common.zl';
+use magick;
+
+querys = rqtGetQuery();
+action = querys['act'] ? querys['act'] : 'list';
+if(action == 'ckImage')
+	Upload.ckImage();
+elif(action == 'thumbImg')
+	Upload.thumbImg();
+else
+	print 'invalid act';
+endif
+
+class Upload
+	// 检测上传图片的大小
+	fun checkImageSize(exit = TRUE)
+		rqtGetBody(&body_count);
+		headers = rqtGetHeaders();
+		if(headers['Content-Length'] > body_count)
+			error = '上传的图片过大' + ' 上传大小:' + headers['Content-Length'] + ' 服务器截断大小:' + body_count;
+			if(exit)
+				rqtSetResponseHeader("Content-Type: application/json");
+				data['error'] = error;
+				print bltJsonEncode(data);
+				bltExit();
+			else
+				return error;
+			endif
+		else
+			return '';
+		endif
+	endfun
+
+	// 通过CKEditor编辑器上传图片后，需要返回的js脚本。如果上传成功，urlpath就表示上传成功的图片的url地址，如果上传失败，则通过msg来返回出错信息
+	fun returnCkMsg(msg, urlpath = '')
+		global querys;
+		funcNum = querys['CKEditorFuncNum'];
+		print "<script type='text/javascript'>window.parent.CKEDITOR.tools.callFunction("+funcNum+", '"+
+			urlpath+"', '" + msg + "');</script>";
+	endfun
+
+	// 下面的方法用于处理由CKEditor编辑器上传的图片
+	fun ckImage()
+		error = Upload.checkImageSize(FALSE);
+		if(error != '')
+			Upload.returnCkMsg(error);
+			return;
+		endif
+		body_array = rqtGetBodyAsArray();
+		if(bltCount(body_array['upload']) > 0)
+			v = body_array['upload'];
+			type = v['type']; // 通过图片类型确定需要设置的图片文件名后缀
+			if(type == 'image/png')
+				ext = '.png';
+			elif(type == 'image/gif')
+				ext = '.gif';
+			else
+				ext = '.jpg';
+			endif
+			dir = '/upload/image/' + bltDate('%Y%m%d') + '/'; // 根据当前日期，确定图片需要保存的目录
+			bltMkdir('..' + dir);
+			urlpath = dir + bltMd5(v['filename']) + ext; // 使用上传文件名的md5值来确定需要保存的图片的文件名
+			bltWriteFile('..' + urlpath, v['content_ptr'], v['length']);
+			wand = magickNewWand();
+			if(!magickReadImage(wand, '..' + urlpath))
+				msg = '上传失败，或者上传的不是有效的图片文件';
+				bltUnlink('..' + urlpath);
+				urlpath = '';
+			else
+				msg = '';
+			endif
+			cookies = rqtGetCookie();
+			token = body_array['ckCsrfToken'];
+			if(bltCount(token) == 0 || cookies['ckCsrfToken'] != token)
+				print 'access denied'; bltExit();
+			endif
+			Upload.returnCkMsg(msg, urlpath);
+		else
+			print 'no upload';
+		endif
+	endfun
+
+	// 下面方法用于处理缩略图的上传
+	fun thumbImg()
+		global querys;
+		Upload.checkImageSize();
+		body_array = rqtGetBodyAsArray(&body_count);
+		if(bltCount(body_array['thumbnail_up']) > 0)
+			v = body_array['thumbnail_up'];
+			thumbdir = '/upload/thumb/' + bltDate('%Y%m%d') + '/'; // 根据当前日期，确定图片需要保存的目录
+			bltMkdir('..' + thumbdir);
+			tmp = '..' + thumbdir + 'tmp'; // TODO 多用户操作时可能会覆盖
+			urlpath = thumbdir + bltMd5(v['filename']); // 使用上传文件名的md5值来确定需要保存的图片的文件名
+			if(v['type'] == 'image/gif')
+				framepath = urlpath + '-0.jpg'; // gif的第一帧对应的jpg
+			else
+				framepath = '';
+			endif
+			urlpath += '.jpg';
+			bltWriteFile(tmp, v['content_ptr'], v['length']);
+			rqtSetResponseHeader("Content-Type: application/json");
+			wand = magickNewWand();
+			if(!magickReadImage(wand, tmp))
+				data['error'] = '上传失败，或者上传的不是有效的图片文件';
+			elif(!magickResizeImage(wand, 200, 150, "LanczosFilter"))
+				data['error'] = '生成缩略图失败，调整大小出错';
+			elif(!magickWriteImage(wand, '..' + urlpath))
+				data['error'] = '生成缩略图失败，写入失败';
+			elif(bltFileExists('..' + urlpath))
+				data['urlpath'] = urlpath;
+			elif(framepath != '' && bltFileExists('..' + framepath))
+				data['urlpath'] = framepath;
+			else
+				data['error'] = '生成缩略图失败，生成的缩略图不存在';
+			endif
+			bltUnlink(tmp);
+			print bltJsonEncode(data);
+		else
+			print 'no thumbnail';
+		endif
+	endfun
+endclass
+

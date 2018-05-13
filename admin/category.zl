@@ -91,7 +91,6 @@ class Category
 			if(data['category', 'childcnt'] != bltCount(data['categories']))
 				Category.updateChildCnt(db, pid);
 			endif
-			bltHtmlEscape(&data['category', 'name'], TRUE);
 		endif
 		for(i=0;bltIterArray(data['categories'],&i,&v);)
 			switch(v['type'])
@@ -104,8 +103,6 @@ class Category
 			default:
 				v['type_name'] = '未知类型';
 			endswitch
-			bltHtmlEscape(&v['name'], TRUE);
-			bltHtmlEscape(&v['description'], TRUE);
 		endfor
 		setCurMenu(menus, 'category.zl');
 		data['menus'] = menus;
@@ -128,16 +125,9 @@ class Category
 		data['act'] = isadd ? 'add' : 'edit';
 		if(posts && posts['pid'] > 0)
 			data['category'] = Category.getCateInfo(db, bltInt(posts['pid']), "id,name");
-			bltHtmlEscape(&data['category', 'name'], TRUE);
 		else
 			data['categories'] = Category.getListByPid(db, 0, "id,name,childcnt");
-			for(i=0;bltIterArray(data['categories'],&i,&v);)
-				bltHtmlEscape(&v['name'], TRUE);
-				bltHtmlEscape(&v['description'], TRUE);
-			endfor
 		endif
-		bltHtmlEscape(&posts['name'], TRUE);
-		bltHtmlEscape(&posts['description'], TRUE);
 		print bltMustacheFileRender("tpl/category_add.tpl",data);
 	endfun
 

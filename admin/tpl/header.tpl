@@ -21,6 +21,9 @@
 		<script src="assets/js/respond.min.js"></script>
 	<![endif]-->
 	<script src="/assets/js/jquery.min.js"></script>
+	{{# head_js}}
+	<script src="assets/js/{{{.}}}"></script>
+	{{/ head_js}}
 </head>
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top">
