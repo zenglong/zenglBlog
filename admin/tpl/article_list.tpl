@@ -51,6 +51,7 @@
 				<td>{{created_at}}</td>
 				<td>{{updated_at}}</td>
 				<td>
+					<a href="/article.zl?id={{id}}" title="查看" class="glyphicon glyphicon-eye-open" aria-hidden="true" target="_blank"></a>&nbsp;&nbsp;
 					<a href="?act=edit&amp;id={{id}}" title="编辑" class="glyphicon glyphicon-edit" aria-hidden="true"></a>&nbsp;&nbsp;
 					<a href="javascript:void(0)" data-id="{{id}}" title="删除" class="glyphicon glyphicon-trash del_article" aria-hidden="true"></a><span></span></td>
 			</tr>

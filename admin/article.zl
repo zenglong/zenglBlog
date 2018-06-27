@@ -32,7 +32,7 @@ class Article
 		endif
 		stitle = bltStr(&querys['stitle']);
 		if(stitle)
-			where += ' and title like "%' + stitle + '%"';
+			where += ' and title like "%' + Mysql.Escape(db, stitle) + '%"';
 			data['stitle'] = stitle;
 		endif
 		tmp = Mysql.fetchOne(db, "select count(1) as cnt from article " + where);

@@ -1,3 +1,24 @@
-use builtin;
+inc 'common.zl';
 
-print 'hello world!';
+Index.index();
+
+class Index
+	// 首页内容
+	fun index()
+		global querys, categories, db;
+		data['title'] = 'zenglBlog首页';
+		data['csses'] = bltArray('index.css');
+		data['thumb_articles'] = Mysql.fetchAll(db, "select id,title,thumbnail,description,created_at from article " + 
+							" where thumbnail != '' order by id desc limit 0,10");
+		data['categories'] = categories;
+		for(i=0;i < 2 && bltIterArray(categories,&i,&v);)
+			item = bltArray();
+			item['cate_id'] = v['id'];
+			item['cate_name'] = v['name'];
+			item['articles'] = Mysql.fetchAll(db, "select id,title,created_at from article where cid = "+v['id']+" order by id desc limit 0,5");
+			items[] = item;
+		endfor
+		data['items'] = items;
+		print bltMustacheFileRender("tpl/index.tpl", data);
+	endfun
+endclass

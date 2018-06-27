@@ -1,12 +1,3 @@
-// ajax返回成功或失败
-fun ajax_return(errmsg = '')
-	ret['msg'] = errmsg ? 'failed' : 'success';
-	ret['errmsg'] = errmsg;
-	rqtSetResponseHeader("Content-Type: application/json");
-	print bltJsonEncode(ret);
-	bltExit();
-endfun
-
 /**
  * 获取分页相关的信息，第一个参数per表示一页显示多少条记录，total表示总记录数
  * showpage表示需要显示的分页数，link表示需要访问的地址，以问号结尾
