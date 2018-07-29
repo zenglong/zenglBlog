@@ -36,7 +36,7 @@ class Article
 			data['stitle'] = stitle;
 		endif
 		tmp = Mysql.fetchOne(db, "select count(1) as cnt from article " + where);
-		total = bltInt(tmp[cnt]);
+		total = bltInt(tmp['cnt']);
 		page = get_page(10, total, 10);
 		for(i=page['start']; i <= page['end'];i++)
 			cur = (page['curpage'] == i) ? ' class="active"' : '';

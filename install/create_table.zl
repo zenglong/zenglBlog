@@ -75,6 +75,24 @@ if(mysqlQuery(con, "CREATE TABLE article(
 	finish_with_error(con);
 endif
 
+// 创建评论表
+if(mysqlQuery(con, "DROP TABLE IF EXISTS comment"))
+	finish_with_error(con);
+endif
+if(mysqlQuery(con, "CREATE TABLE comment(
+	id int NOT NULL AUTO_INCREMENT, 
+	nickname varchar(80) NOT NULL DEFAULT '' COMMENT '评论人昵称',
+	aid int NOT NULL DEFAULT '0' COMMENT '评论所属文章ID',
+	pid int NOT NULL DEFAULT '0' COMMENT '回复所属的评论ID',
+	content varchar(3000) NOT NULL DEFAULT '' COMMENT '评论内容',
+	status tinyint NOT NULL DEFAULT '0' COMMENT '评论状态:0表示待审核,1表示审核通过,2表示审核不通过',
+	reject_reason varchar(100) NOT NULL DEFAULT '' COMMENT '拒绝理由(不通过理由)',
+	`created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
+	PRIMARY KEY (id)
+	) ENGINE=MyISAM DEFAULT CHARSET utf8 COLLATE utf8_general_ci COMMENT='评论表'"))
+	finish_with_error(con);
+endif
+
 data['username'] = 'admin';
 data['nickname'] = '管理员';
 data['password'] = 'admin@123456';

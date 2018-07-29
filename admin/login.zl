@@ -6,7 +6,7 @@ inc '../mysql.zl';
 
 cookies = rqtGetCookie();
 sess_data = sessGetData(bltStr(&cookies['ADM_SESSION']));
-if(bltCount(sess_data) > 0)
+if(bltCount(sess_data) > 0 && sess_data['uid'] > 0)
 	rqtSetResponseHeader("HTTP/1.1 302 Moved Temporarily");
 	rqtSetResponseHeader("Location: admin.zl");
 	bltExit();
@@ -32,6 +32,7 @@ else
 			bltUnset(&data['errmsg']);
 			sess_data['username'] = result['username'];
 			sess_data['nickname'] = result['nickname'];
+			sess_data['uid'] = result['id'];
 			sess_id = sessMakeId();
 			sessSetData(sess_id, sess_data);
 			rqtSetResponseHeader("Set-Cookie: ADM_SESSION="+sess_id+"; path=/");

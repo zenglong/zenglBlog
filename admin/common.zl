@@ -6,7 +6,7 @@ inc '../mysql.zl';
 
 cookies = rqtGetCookie();
 sess_data = sessGetData(bltStr(&cookies['ADM_SESSION']));
-if(bltCount(sess_data) == 0)
+if(bltCount(sess_data) == 0 || !sess_data['uid'])
 	rqtSetResponseHeader("HTTP/1.1 302 Moved Temporarily");
 	rqtSetResponseHeader("Location: login.zl");
 	bltExit();
@@ -17,6 +17,7 @@ menus = bltJsonDecode('[
 	{"link": "user_list.zl", "name": "用户列表"},
 	{"link": "category.zl", "name": "分类列表"},
 	{"link": "article.zl", "name": "文章列表"},
+	{"link": "comment.zl", "name": "评论列表"},
 ]');
 
 fun setCurMenu(menus, cur_menu)

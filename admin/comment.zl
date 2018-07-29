@@ -1,0 +1,113 @@
+inc 'common.zl';
+inc 'helper.zl';
+
+querys = rqtGetQuery();
+action = querys['act'] ? querys['act'] : 'list';
+
+if(action == 'list')
+	Comment.list();
+elif(action == 'pass')
+	Comment.pass();
+elif(action == 'reject')
+	Comment.reject();
+else
+	print 'invalid act';
+endif
+
+class Comment
+	// 评论列表
+	fun list()
+		global menus, querys;
+		data['title'] = '评论列表:';
+		setCurMenu(menus, 'comment.zl');
+		data['menus'] = menus;
+		data['csses', 0] = 'comment_list.css';
+		db = Comment.initDB();
+		where = " where 1 ";
+		stitle = bltStr(&querys['stitle']);
+		if(stitle) // 根据标题搜索
+			where += ' and a.title like "%' + Mysql.Escape(db, stitle) + '%"';
+			data['stitle'] = stitle;
+		endif
+
+		snickname = bltStr(&querys['snickname']);
+		if(snickname) // 根据昵称搜索
+			where += ' and c.nickname like "%' + Mysql.Escape(db, snickname) + '%"';
+			data['snickname'] = snickname;
+		endif
+
+		if(bltIsNone(&querys['search_status']))
+			data['search_status'] = -1;
+		else
+			search_status = bltInt(querys['search_status']);
+			if(search_status >= 0) // 根据状态搜索
+				where += ' and c.status = ' + search_status;
+			endif
+			data['search_status'] = search_status;
+		endif
+
+		tmp = Mysql.fetchOne(db, "select count(1) as cnt from comment c inner join article a on a.id=c.aid "  + where);
+		total = bltInt(tmp['cnt']);
+		page = get_page(10, total, 10);
+		for(i=page['start']; i <= page['end'];i++)
+			cur = (page['curpage'] == i) ? ' class="active"' : '';
+			pages[] = '<li'+cur+'><a href="'+page['link']+'page='+i+'">'+i+'</a></li>';
+		endfor
+		data['page'] = page;
+		data['pages'] = pages;
+		data['comments'] = Mysql.fetchAll(db, "select c.id, c.nickname, c.content, c.status, c.reject_reason, c.created_at, c.aid, a.title from comment c " +
+					" inner join article a on a.id=c.aid " + where + " order by c.id desc limit " + page['offset'] + "," + page['limit']);
+		for(i=0;bltIterArray(data['comments'],&i,&v);)
+			switch(v['status'])
+			case 0:
+				v['status_text'] = '<span class="label label-default">待审核</span>';
+				break;
+			case 1:
+				v['status_text'] = '<span class="label label-success">审核通过</span>';
+				break;
+			case 2:
+				v['status_text'] = '<span class="label label-danger">审核不通过</span>';
+				break;
+			default:
+				v['status_text'] = '<span class="label label-warning">未知状态</span>';
+			endswitch
+			bltHtmlEscape(&v['content'], TRUE);
+			bltStrReplace(&v['content'], '\n', '<br/>', TRUE);
+		endfor
+		print bltMustacheFileRender("tpl/comment_list.tpl", data);
+	endfun
+
+	// 初始化数据库连接
+	fun initDB()
+		global config;
+		db = bltArray();
+		Mysql.init(db, config, "tpl/error.tpl");
+		return db;
+	endfun
+
+	// 审核通过
+	fun pass()
+		global querys;
+		db = Comment.initDB();
+		id = querys['id'] ? bltInt(querys['id']) : 0;
+		if(id <= 0) 
+			ajax_return('无效的评论id');
+		endif
+		Mysql.Exec(db, "UPDATE comment SET status=1,reject_reason='' WHERE id=" + id);
+		ajax_return();
+	endfun
+
+	// 拒绝，审核不通过
+	fun reject()
+		posts = rqtGetBodyAsArray();
+		db = Comment.initDB();
+		id = posts['id'] ? bltInt(posts['id']) : 0;
+		if(id <= 0)
+			ajax_return('无效的评论id');
+		endif
+		data['reject_reason'] = bltStr(&posts['reject_reason']);
+		data['status'] = 2;
+		Mysql.Update(db, 'comment', data, " id=" + id);
+		ajax_return();
+	endfun
+endclass

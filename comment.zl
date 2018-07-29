@@ -1,0 +1,98 @@
+use builtin, request, mysql, session;
+def TRUE 1;
+def FALSE 0;
+inc 'config.zl';
+inc 'mysql.zl';
+
+querys = rqtGetQuery();
+action = querys['act'] ? querys['act'] : 'list';
+if(action == 'list')
+	Comment.list();
+elif(action == 'add')
+	Comment.add();
+else
+	print 'invalid act';
+endif
+
+class Comment
+	// 显示评论列表
+	fun list()
+		global querys;
+		page = bltInt(querys['page']);
+		if(page <= 0)
+			page = 1;
+		endif
+		per_page = 10;
+		offset = (page - 1) * per_page;
+		aid = bltInt(querys['aid']);
+		db = Comment.initDB();
+		data['comments'] = Mysql.fetchAll(db, "select id,nickname,content,created_at from comment where status=1 and aid="+aid+" order by id desc limit " + offset + ', ' + per_page);
+		for(i=0;bltIterArray(data['comments'],&i,&v);)
+			bltHtmlEscape(&v['nickname'], TRUE);
+			bltHtmlEscape(&v['content'], TRUE);
+		endfor
+		data['per_page'] = per_page;
+		data['msg'] = 'success';
+		rqtSetResponseHeader("Content-Type: application/json");
+		print bltJsonEncode(data);
+	endfun
+
+	// 添加评论
+	fun add()
+		global sess_id;
+		cookies = rqtGetCookie();
+		sess_id = cookies['SESSION'];
+		sess_data = sessGetData(sess_id);
+		posts = rqtGetBodyAsArray();
+		bltStr(&posts['captcha'], TRUE);
+		bltStr(&sess_data['captcha'], TRUE);
+		if(sess_data['captcha'] && sess_data['captcha'] == posts['captcha'])
+			insert_data['nickname'] = bltStr(&posts['nickname']);
+			if(insert_data['nickname'] == '')
+				Comment.error('昵称不能为空！');
+			endif
+			insert_data['content'] = bltStr(&posts['content']);
+			if(insert_data['content'] == '')
+				Comment.error('内容不能为空');
+			endif
+			if(bltUtfStrLen(insert_data['content']) < 5)
+				Comment.error('内容太短');
+			endif
+			if(bltUtfStrLen(insert_data['content']) > 500)
+				Comment.error('内容太长');
+			endif
+			db = Comment.initDB();
+			insert_data['aid'] = bltInt(posts['aid']);
+			article_data = Mysql.fetchOne(db, "select id from article where id='"+insert_data['aid']+"'");
+			if(!bltCount(article_data))
+				Comment.error('无效的文章ID');
+			endif
+			insert_data['created_at'] = bltDate('%Y-%m-%d %H:%M:%S');
+			Mysql.Insert(db, 'comment', insert_data);
+			data['msg'] = 'success';
+			rqtSetResponseHeader("Content-Type: application/json");
+			print bltJsonEncode(data);
+		else
+			Comment.error('无效的图形验证码');
+		endif
+	endfun
+
+	// 初始化数据库连接
+	fun initDB()
+		global config;
+		db = bltArray();
+		Mysql.init(db, config, "tpl/error.tpl");
+		return db;
+	endfun
+
+	fun error(errmsg)
+		global sess_id;
+		data['msg'] = 'failed';
+		data['errmsg'] = errmsg;
+		rqtSetResponseHeader("Content-Type: application/json");
+		print bltJsonEncode(data);
+		sessDelete(sess_id);
+		bltExit();
+	endfun
+endclass
+
