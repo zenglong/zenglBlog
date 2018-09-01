@@ -1,4 +1,4 @@
-{{> tpl/header.tpl}}
+{{> /tpl/header.tpl}}
 <ol class="breadcrumb">
   <li><a href="/index.zl">zenglBlog</a></li>
   <li class="active">{{ catname }}</li>
@@ -48,4 +48,4 @@
 		{{/page}}
 	</div>
 </div>
-{{> tpl/footer.tpl}}
+{{> /tpl/footer.tpl}}

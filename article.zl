@@ -1,5 +1,6 @@
 inc 'common.zl';
 inc 'helper.zl';
+inc 'article.class.zl';
 
 querys = rqtGetQuery();
 action = querys['act'] ? querys['act'] : 'show';
@@ -11,50 +12,3 @@ else
 	print 'invalid act';
 endif
 
-class Article
-	// 显示文章内容
-	fun show()
-		global querys, categories, db;
-		id = bltInt(querys['id']);
-		data = Mysql.fetchOne(db, "select * from article where id='"+id+"'");
-		data['csses'] = bltArray('article-show.css');
-		data['head_js'] = bltArray('jquery.yestop.js');
-		Article.SetCurCate(categories, data, data['cid']);
-		print bltMustacheFileRender("tpl/article_show.tpl", data);
-	endfun
-
-	// 显示文章列表
-	fun list()
-		global querys, categories, db;
-		cid = bltInt(querys['cid']);
-		where = " where cid=" + cid;
-		tmp = Mysql.fetchOne(db, "select count(1) as cnt from article " + where);
-		total = bltInt(tmp[cnt]);
-		page = get_page(2, total, 10);
-		for(i=page['start']; i <= page['end'];i++)
-			cur = (page['curpage'] == i) ? ' class="active"' : '';
-			pages[] = '<li'+cur+'><a href="'+page['link']+'page='+i+'">'+i+'</a></li>';
-		endfor
-		data['page'] = page;
-		data['pages'] = pages;
-		data['articles'] = Mysql.fetchAll(db, "select id,title,thumbnail,description,created_at from article "+ where +
-							" order by id desc limit " + page['offset'] + "," + page['limit']);
-		Article.SetCurCate(categories, data, cid);
-		print bltMustacheFileRender("tpl/article_list.tpl", data);
-	endfun
-
-	// 设置当前分类
-	fun SetCurCate(categories, data, cid)
-		for(i=0;bltIterArray(categories,&i,&v);)
-			if(v['id'] == cid)
-				v['cur'] = 'yes';
-				if(!data['title'])
-					data['title'] = v['name'];
-				endif
-				data['catname'] = v['name'];
-				break;
-			endif
-		endfor
-		data['categories'] = categories;
-	endfun
-endclass

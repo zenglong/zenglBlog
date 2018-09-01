@@ -35,12 +35,24 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>-->
+			{{#static}}
+			<a class="navbar-brand" href="/">zenglBlog</a>
+			{{/static}}
+			{{^static}}
 			<a class="navbar-brand" href="/index.zl">zenglBlog</a>
+			{{/static}}
 		</div>
 		<div id="navbar" class="collapse navbar-collapse">
 			<ul class="nav navbar-nav">
 				{{#categories}}
-				<li {{#cur}}class="active"{{/cur}} data-id="{{id}}"><a href="/article.zl?act=list&amp;cid={{id}}">{{name}}</a></li>
+				<li {{#cur}}class="active"{{/cur}} data-id="{{id}}">
+					{{#static}}
+					<a href="/c/{{id}}/">{{name}}</a>
+					{{/static}}
+					{{^static}}
+					<a href="/article.zl?act=list&amp;cid={{id}}">{{name}}</a>
+					{{/static}}
+				</li>
 				{{/categories}}
 				<!--<li class="active"><a href="#">Home</a></li>
 				<li><a href="#about">About</a></li>

@@ -1,7 +1,13 @@
-{{> tpl/header.tpl}}
+{{> /tpl/header.tpl}}
 <ol class="breadcrumb">
+  {{#static}}
+  <li><a href="/">zenglBlog</a></li>
+  <li><a href="/c/{{ cid }}/">{{ catname }}</a></li>
+  {{/static}}
+  {{^static}}
   <li><a href="/index.zl">zenglBlog</a></li>
   <li><a href="/article.zl?act=list&amp;cid={{ cid }}">{{ catname }}</a></li>
+  {{/static}}
   <li class="active">{{title}}</li>
 </ol>
 <div class="row">
@@ -85,7 +91,7 @@
 	}
 
 	$('.comment-btn').click(function(){
-		$("#comment-captcha-img").attr("src", 'captcha.zl?' + (new Date().getTime()));
+		$("#comment-captcha-img").attr("src", '/captcha.zl?' + (new Date().getTime()));
 		$('#myModal').modal({
 			keyboard: false
 		});
@@ -94,7 +100,7 @@
 	$('#comment-submit').click(function(){
 		$.ajax({
 			type: 'POST',
-			url: "comment.zl?act=add",
+			url: "/comment.zl?act=add",
 			dataType: "json",
 			data: {
 				"nickname": $('#comment-nickname').val(),
@@ -132,7 +138,7 @@
 		var timestamp = new Date().getTime(); //IE浏览器ajax GET请求有缓存问题！
 		$.ajax({
 			type: 'GET',
-			url: "comment.zl?timestamp=" + timestamp,
+			url: "/comment.zl?timestamp=" + timestamp,
 			data: {
 				"act": 'list',
 				"aid": {{ id }},
@@ -194,4 +200,4 @@
 	});
 
 </script>
-{{> tpl/footer.tpl}}
+{{> /tpl/footer.tpl}}
