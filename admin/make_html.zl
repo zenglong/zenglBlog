@@ -1,0 +1,30 @@
+inc 'common.zl';
+
+querys = rqtGetQuery();
+action = querys['act'] ? querys['act'] : 'show';
+if(action == 'show')
+	MakeHtml.show();
+else
+	print 'invalid act';
+endif
+
+class MakeHtml
+	fun show()
+		global menus, querys;
+		data['title'] = '生成静态页面:';
+		setCurMenu(menus, 'make_html.zl');
+		data['menus'] = menus;
+		db = MakeHtml.initDB();
+		data['categories'] = Mysql.fetchAll(db, "select id,name from category order by id asc");
+		print bltMustacheFileRender("tpl/make_html.tpl", data);
+	endfun
+
+	// 初始化数据库连接
+	fun initDB()
+		global config;
+		db = bltArray();
+		Mysql.init(db, config, "tpl/error.tpl");
+		return db;
+	endfun
+endclass
+

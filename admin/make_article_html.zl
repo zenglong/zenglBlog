@@ -1,4 +1,5 @@
 inc 'common.zl';
+inc '../helper.zl';
 inc '../article.class.zl';
 
 // 初始化数据库连接
@@ -17,9 +18,9 @@ cid = bltInt(querys['cid']);
 where = (cid > 0) ? ' where cid=' + cid : '';
 p = bltInt(querys['p']);
 p = (p > 0) ? p : 1;
-limit = 10;
+limit = 2;
 offset = (p - 1) * limit;
-articles = Mysql.fetchAll(db, "select id, title, DATE_FORMAT(created_at, '%Y%m') as format_created from article "+where+" order by id asc limit " + offset + "," + limit);
+articles = Mysql.fetchAll(db, "select id, title, DATE_FORMAT(created_at, '%Y%m') as format_created from article "+where+" order by id desc limit " + offset + "," + limit);
 bltMkdir('../a');
 for(i=0;bltIterArray(articles,&i,&v);)
 	querys['id'] = v['id'];
@@ -28,6 +29,26 @@ for(i=0;bltIterArray(articles,&i,&v);)
 	bltMkdir(dir);
 	bltWriteFile(dir  + '/' + v['id'] + '.html', content);
 endfor
+data['articles'] = articles;
+if(bltStr(&querys['getinfo']) == 'yes')
+	data['info'] = Mysql.fetchOne(db, "select count(1) as count from article where cid=" + cid);
+	bltInt(&data['info', 'count'], TRUE);
+endif
+if(cid > 0)
+	data['category'] = Mysql.fetchOne(db, "select id,name from category where id=" + cid);
+	if(bltCount(data['category']) > 0)
+		querys['page'] = p;
+		content = Article.list(TRUE);
+		bltMkdir('../c');
+		dir = '../c/' + cid;
+		bltMkdir(dir);
+		if(p == 1)
+			bltWriteFile(dir  + '/index.html', content);
+		else
+			bltWriteFile(dir  + '/' + p + '.html', content);
+		endif
+	endif
+endif
 rqtSetResponseHeader("Content-Type: application/json");
-print bltJsonEncode(articles);
+print bltJsonEncode(data);
 

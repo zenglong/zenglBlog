@@ -17,23 +17,38 @@ class Article
 	endfun
 
 	// 显示文章列表
-	fun list()
+	fun list(static = FALSE)
 		global querys, categories, db;
 		cid = bltInt(querys['cid']);
 		where = " where cid=" + cid;
 		tmp = Mysql.fetchOne(db, "select count(1) as cnt from article " + where);
 		total = bltInt(tmp[cnt]);
 		page = get_page(2, total, 10);
+		if(static)
+			page['link'] = '/c/' + cid + '/';
+			page['prev_link'] = page['link'] + ((page['prev'] == 1) ? '' : page['prev'] + '.html');
+		endif
 		for(i=page['start']; i <= page['end'];i++)
 			cur = (page['curpage'] == i) ? ' class="active"' : '';
-			pages[] = '<li'+cur+'><a href="'+page['link']+'page='+i+'">'+i+'</a></li>';
+			if(!static)
+				pages[] = '<li'+cur+'><a href="'+page['link']+'page='+i+'">'+i+'</a></li>';
+			else
+				page_html = page['link'] + ((i==1) ? '' : i + '.html');
+				pages[] = '<li'+cur+'><a href="' + page_html + '">'+i+'</a></li>';
+			endif
 		endfor
+		data['static'] = static;
 		data['page'] = page;
 		data['pages'] = pages;
-		data['articles'] = Mysql.fetchAll(db, "select id,title,thumbnail,description,created_at from article "+ where +
+		data['articles'] = Mysql.fetchAll(db, "select id,title,thumbnail,description,created_at,DATE_FORMAT(created_at, '%Y%m') as format_created from article "+ where +
 							" order by id desc limit " + page['offset'] + "," + page['limit']);
 		Article.SetCurCate(categories, data, cid);
-		print bltMustacheFileRender("/tpl/article_list.tpl", data);
+		content = bltMustacheFileRender("/tpl/article_list.tpl", data);
+		if(!static)
+			print content;
+		else
+			return content;
+		endif
 	endfun
 
 	// 设置当前分类
