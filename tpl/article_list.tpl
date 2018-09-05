@@ -1,10 +1,10 @@
 {{> /tpl/header.tpl}}
 <ol class="breadcrumb">
 	{{#static}}
-		<li><a href="/">zenglBlog</a></li>
+		<li><a href="/">{{site_name}}</a></li>
 	{{/static}}
 	{{^static}}
-		<li><a href="/index.zl">zenglBlog</a></li>
+		<li><a href="/index.zl">{{site_name}}</a></li>
 	{{/static}}
 	<li class="active">{{ catname }}</li>
 </ol>

@@ -1,11 +1,11 @@
 {{> /tpl/header.tpl}}
 <ol class="breadcrumb">
   {{#static}}
-  <li><a href="/">zenglBlog</a></li>
+  <li><a href="/">{{site_name}}</a></li>
   <li><a href="/c/{{ cid }}/">{{ catname }}</a></li>
   {{/static}}
   {{^static}}
-  <li><a href="/index.zl">zenglBlog</a></li>
+  <li><a href="/index.zl">{{site_name}}</a></li>
   <li><a href="/article.zl?act=list&amp;cid={{ cid }}">{{ catname }}</a></li>
   {{/static}}
   <li class="active">{{title}}</li>
@@ -28,7 +28,7 @@
 		</div>
 	</div>
 </div>
-
+{{#show_comment}}
 <div class="row comment-list">
 	<h3 style="margin-bottom: 15px">评论列表</h3>
 	<span class="comment-loading"></span>
@@ -78,10 +78,10 @@
 		</div>
 	</div>
 </div>
-
+{{/show_comment}}
 <script type="text/javascript">
 	$(document).ready(function () { $.fn.yestop({yes_image: '/assets/image/yestop.png'}); });
-
+	{{#show_comment}}
 	function getError(errTitle, errContent)
 	{
 		return '<div class="alert alert-danger alert-dismissible err-alert" role="alert">' +
@@ -198,6 +198,6 @@
 	$(".comment-load-btn").click(function(){
 		comment_load();
 	});
-
+	{{/show_comment}}
 </script>
 {{> /tpl/footer.tpl}}

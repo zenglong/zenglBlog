@@ -1,8 +1,9 @@
 class Index
 	// 首页内容
 	fun index(static = FALSE)
-		global querys, categories, db;
-		data['title'] = 'zenglBlog首页';
+		global querys, categories, db, config;
+		data['head_title'] = data['site_name'] = config['site_name'];
+		data['description'] = config['site_desc'];
 		data['csses'] = bltArray('index.css');
 		data['thumb_articles'] = Mysql.fetchAll(db, "select id,title,thumbnail,description,created_at,DATE_FORMAT(created_at, '%Y%m') as format_created from article " + 
 							" where thumbnail != '' order by id desc limit 0,10");

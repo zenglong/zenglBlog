@@ -1,13 +1,14 @@
 class Article
 	// 显示文章内容
 	fun show(static = FALSE)
-		global querys, categories, db;
+		global querys, categories, db, config;
 		id = bltInt(querys['id']);
 		data = Mysql.fetchOne(db, "select * from article where id='"+id+"'");
 		data['csses'] = bltArray('article-show.css');
 		data['head_js'] = bltArray('jquery.yestop.js');
 		data['static'] = static;
 		Article.SetCurCate(categories, data, data['cid']);
+		data['show_comment'] = config['comment'];
 		content = bltMustacheFileRender("/tpl/article_show.tpl", data);
 		if(!static)
 			print content;
@@ -53,6 +54,7 @@ class Article
 
 	// 设置当前分类
 	fun SetCurCate(categories, data, cid)
+		global config;
 		for(i=0;bltIterArray(categories,&i,&v);)
 			if(v['id'] == cid)
 				v['cur'] = 'yes';
@@ -63,6 +65,8 @@ class Article
 				break;
 			endif
 		endfor
+		data['site_name'] = config['site_name'];
+		data['head_title'] = data['title'] + ' - ' + config['site_name'];
 		data['categories'] = categories;
 	endfun
 endclass

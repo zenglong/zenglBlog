@@ -1,6 +1,6 @@
 <hr>
 <footer>
-<p>&copy; zenglBlog 2018</p>
+<p>&copy; {{site_name}}</p>
 </footer>
 
 </div><!--/.container-->

@@ -4,7 +4,8 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>{{title}}</title>
+	<title>{{head_title}}</title>
+	{{#description}}<meta name="description" content="{{description}}">{{/description}}
 	<!-- Bootstrap core CSS -->
 	<link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
@@ -36,10 +37,10 @@
 				<span class="icon-bar"></span>
 			</button>-->
 			{{#static}}
-			<a class="navbar-brand" href="/">zenglBlog</a>
+			<a class="navbar-brand" href="/">{{site_name}}</a>
 			{{/static}}
 			{{^static}}
-			<a class="navbar-brand" href="/index.zl">zenglBlog</a>
+			<a class="navbar-brand" href="/index.zl">{{site_name}}</a>
 			{{/static}}
 		</div>
 		<div id="navbar" class="collapse navbar-collapse">
