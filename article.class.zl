@@ -24,10 +24,12 @@ class Article
 		where = " where cid=" + cid;
 		tmp = Mysql.fetchOne(db, "select count(1) as cnt from article " + where);
 		total = bltInt(tmp[cnt]);
-		page = get_page(2, total, 10);
+		page = get_page(10, total, 10);
 		if(static)
 			page['link'] = '/c/' + cid + '/';
 			page['prev_link'] = page['link'] + ((page['prev'] == 1) ? '' : page['prev'] + '.html');
+			page['next_link'] = page['link'] + ((page['next'] == 1) ? '' : page['next'] + '.html');
+			page['totalpage_link'] = page['link'] + ((page['totalpage'] == 1) ? '' : page['totalpage'] + '.html');
 		endif
 		for(i=page['start']; i <= page['end'];i++)
 			cur = (page['curpage'] == i) ? ' class="active"' : '';

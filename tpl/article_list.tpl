@@ -44,12 +44,12 @@
 				{{{.}}}
 			{{/pages}}
 			<li>
-			  <a href="{{{link}}}{{#static}}{{next}}.html{{/static}}{{^static}}page={{next}}{{/static}}" aria-label="Next">
+			  <a href="{{#static}}{{next_link}}{{/static}}{{^static}}{{{link}}}page={{next}}{{/static}}" aria-label="Next">
 				<span aria-hidden="true">&rsaquo;</span>
 			  </a>
 			</li>
 			<li>
-			  <a href="{{{link}}}{{#static}}{{totalpage}}.html{{/static}}{{^static}}page={{totalpage}}{{/static}}" aria-label="Next">
+			  <a href="{{#static}}{{totalpage_link}}{{/static}}{{^static}}{{{link}}}page={{totalpage}}{{/static}}" aria-label="Next">
 				<span aria-hidden="true">&raquo;</span>
 			  </a>
 			</li>
