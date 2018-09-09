@@ -120,7 +120,7 @@
 				else {
 					$('#comment-modal-body').prepend(getError('提交失败：', data.errmsg));
 				}
-				$("#comment-captcha-img").attr("src", 'captcha.zl?' + (new Date().getTime()));
+				$("#comment-captcha-img").attr("src", '/captcha.zl?' + (new Date().getTime()));
 				$("#comment-submit").button('reset');
 			},
 			//调用出错执行的函数
