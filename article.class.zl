@@ -19,12 +19,12 @@ class Article
 
 	// 显示文章列表
 	fun list(static = FALSE)
-		global querys, categories, db;
+		global querys, categories, db, config;
 		cid = bltInt(querys['cid']);
 		where = " where cid=" + cid;
 		tmp = Mysql.fetchOne(db, "select count(1) as cnt from article " + where);
 		total = bltInt(tmp[cnt]);
-		page = get_page(10, total, 10);
+		page = get_page(config['list_page_count'], total, 10);
 		if(static)
 			page['link'] = '/c/' + cid + '/';
 			page['prev_link'] = page['link'] + ((page['prev'] == 1) ? '' : page['prev'] + '.html');

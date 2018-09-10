@@ -18,7 +18,7 @@ cid = bltInt(querys['cid']);
 where = (cid > 0) ? ' where cid=' + cid : '';
 p = bltInt(querys['p']);
 p = (p > 0) ? p : 1;
-limit = 2;
+limit = config['list_page_count'];
 offset = (p - 1) * limit;
 articles = Mysql.fetchAll(db, "select id, title, DATE_FORMAT(created_at, '%Y%m') as format_created from article "+where+" order by id desc limit " + offset + "," + limit);
 bltMkdir('../a');
