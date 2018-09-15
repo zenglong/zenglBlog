@@ -62,6 +62,7 @@ class Article
 				v['cur'] = 'yes';
 				if(!data['title'])
 					data['title'] = v['name'];
+					data['description'] = v['description'];
 				endif
 				data['catname'] = v['name'];
 				break;

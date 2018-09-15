@@ -12,7 +12,7 @@ endfun
 
 db = initDB();
 querys = rqtGetQuery();
-categories = Mysql.fetchAll(db, "select id,name from category where pid=0 order by id asc");
+categories = Mysql.fetchAll(db, "select id,name,description from category where pid=0 order by id asc");
 
 cid = bltInt(querys['cid']);
 where = (cid > 0) ? ' where cid=' + cid : '';
