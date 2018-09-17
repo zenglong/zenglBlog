@@ -16,12 +16,12 @@
 			<h2>{{title}}</h2>
 			<h3><small>{{ author }}&nbsp;&nbsp;{{ created_at }}</small></h3>
 		</div>
-		<div class="row description">
+		<div class="row description container">
 			<div class="jumbotron">
 				<p>{{ description }}</p>
 			</div>
 		</div>
-		<div class="row content">
+		<div class="row content container">
 			<div>
 				{{{ content }}}
 			</div>
