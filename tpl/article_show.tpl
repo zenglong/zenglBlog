@@ -199,5 +199,14 @@
 		comment_load();
 	});
 	{{/show_comment}}
+
+	// 锚链跳转
+	global_this_url=location.href;
+	url_reg = /#.*?$/g
+	global_this_url = global_this_url.replace(url_reg,"");
+	function this_jumpto(name)
+	{
+		window.location.href=global_this_url+"#"+name;
+	}
 </script>
 {{> /tpl/footer.tpl}}

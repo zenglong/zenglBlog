@@ -6,10 +6,10 @@ class Index
 		data['description'] = config['site_desc'];
 		data['csses'] = bltArray('index.css');
 		data['thumb_articles'] = Mysql.fetchAll(db, "select id,title,thumbnail,description,created_at,DATE_FORMAT(created_at, '%Y%m') as format_created from article " + 
-							" where thumbnail != '' order by id desc limit 0,10");
+							" where thumbnail != '' order by id desc limit 0,4");
 		data['categories'] = categories;
 		data['static'] = static;
-		for(i=0;i < 2 && bltIterArray(categories,&i,&v);)
+		for(i=0;i < 10 && bltIterArray(categories,&i,&v);)
 			item = bltArray();
 			item['cate_id'] = v['id'];
 			item['cate_name'] = v['name'];
