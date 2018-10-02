@@ -14,14 +14,23 @@
 	overflow-y: hidden;
 }
 .row .article-link a {
-	color:#333;
-	padding-left: 20px;
+	/* color:#333;
+	padding-left: 20px; */
+}
+.description {
+	color: #939393;
+	margin-bottom: 20px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 .cate-name {
 	margin-bottom: 25px;
+	background: #84b3e1;
+	padding: 5px;
 }
 .cate-name a {
-	color:#333;
+	color: #fff;
 }
 .clearfloat{
 	clear:both;

@@ -80,7 +80,10 @@
 </div>
 {{/show_comment}}
 <script type="text/javascript">
-	$(document).ready(function () { $.fn.yestop({yes_image: '/assets/image/yestop.png'}); });
+	$(document).ready(function () { 
+		$.fn.yestop({yes_image: '/assets/image/yestop.png'});
+		$(".row .content img").removeAttr("style").addClass("img-responsive center-block");
+	});
 	{{#show_comment}}
 	function getError(errTitle, errContent)
 	{

@@ -40,6 +40,7 @@ class Article
 				pages[] = '<li'+cur+'><a href="' + page_html + '">'+i+'</a></li>';
 			endif
 		endfor
+		data['head_js'] = bltArray('jquery.yestop.js');
 		data['static'] = static;
 		data['page'] = page;
 		data['pages'] = pages;

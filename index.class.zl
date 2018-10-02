@@ -4,16 +4,20 @@ class Index
 		global querys, categories, db, config;
 		data['head_title'] = data['site_name'] = config['site_name'];
 		data['description'] = config['site_desc'];
-		data['csses'] = bltArray('index.css');
-		data['thumb_articles'] = Mysql.fetchAll(db, "select id,title,thumbnail,description,created_at,DATE_FORMAT(created_at, '%Y%m') as format_created from article " + 
+		data['csses'] = bltArray('index.css?v=20181002');
+		data['head_js'] = bltArray('jquery.yestop.js');
+		data['thumb_articles'] = Mysql.fetchAll(db, "select id,title,thumbnail,created_at,DATE_FORMAT(created_at, '%Y%m') as format_created from article " + 
 							" where thumbnail != '' order by id desc limit 0,4");
+		data['latest_articles'] = Mysql.fetchAll(db, "select id,title,thumbnail,description,created_at,DATE_FORMAT(created_at, '%Y%m') as format_created from article " + 
+							" order by id desc limit 0,5");
+		data['latest_articles_cnt'] = bltCount(data['latest_articles']);
 		data['categories'] = categories;
 		data['static'] = static;
 		for(i=0;i < 10 && bltIterArray(categories,&i,&v);)
 			item = bltArray();
 			item['cate_id'] = v['id'];
 			item['cate_name'] = v['name'];
-			item['articles'] = Mysql.fetchAll(db, "select id,title,created_at,DATE_FORMAT(created_at, '%Y%m') as format_created from article where cid = "+v['id']+" order by id desc limit 0,5");
+			item['articles'] = Mysql.fetchAll(db, "select id,title,description,thumbnail,created_at,DATE_FORMAT(created_at, '%Y%m') as format_created from article where cid = "+v['id']+" order by id desc limit 0,5");
 			items[] = item;
 		endfor
 		data['items'] = items;

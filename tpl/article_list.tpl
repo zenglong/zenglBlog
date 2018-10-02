@@ -60,4 +60,9 @@
 		{{/page}}
 	</div>
 </div>
+<script type="text/javascript">
+	$(document).ready(function () { 
+		$.fn.yestop({yes_image: '/assets/image/yestop.png'});
+	});
+</script>
 {{> /tpl/footer.tpl}}

@@ -20,6 +20,35 @@
 		{{/thumb_articles}}
 	</div>
 </div>
+{{#latest_articles_cnt}}
+<div class="row">
+	<div class="col-xs-18 col-sm-12">
+		<h3 class="cate-name">
+			<a href="javascript:void(0);">最近更新</a>
+		</h3>
+		{{#latest_articles}}
+		<p class="article">{{created_at}}&nbsp;
+			<span class="article-link">
+				{{#static}}
+					<a href="/a/{{format_created}}/{{id}}.html" title="{{title}}">{{title}}</a>
+				{{/static}}
+				{{^static}}
+					<a href="/article.zl?id={{id}}" title="{{title}}">{{title}}</a>
+				{{/static}}
+			</span>
+		</p>
+		<p class="description">
+			{{description}}
+		</p>
+		{{# thumbnail }}
+		<p class="item-thumbnail">
+			<img src="{{ thumbnail }}" alt="{{title}}"/>
+		</p>
+		{{/ thumbnail }}
+		{{/latest_articles}}
+	</div>
+</div>
+{{/latest_articles_cnt}}
 <div class="row">
 	{{#items}}
 	<div class="col-xs-18 col-sm-12">
@@ -42,8 +71,21 @@
 				{{/static}}
 			</span>
 		</p>
+		<p class="description">
+			{{description}}
+		</p>
+		{{# thumbnail }}
+		<p class="item-thumbnail">
+			<img src="{{ thumbnail }}" alt="{{title}}"/>
+		</p>
+		{{/ thumbnail }}
 		{{/articles}}
 	</div>
 	{{/items}}
 </div>
+<script type="text/javascript">
+	$(document).ready(function () { 
+		$.fn.yestop({yes_image: '/assets/image/yestop.png'});
+	});
+</script>
 {{> /tpl/footer.tpl}}

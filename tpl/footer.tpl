@@ -1,6 +1,6 @@
 <hr>
 <footer>
-<p>&copy; {{site_name}}</p>
+<p>&copy; {{site_name}} &nbsp; Powered by zenglBlog</p>
 </footer>
 
 </div><!--/.container-->
