@@ -1,0 +1,130 @@
+inc 'common.zl';
+inc 'helper.zl';
+
+querys = rqtGetQuery();
+action = querys['act'] ? querys['act'] : 'list';
+if(action == 'list')
+	Notice.list();
+elif(action == 'add')
+	Notice.add();
+elif(action == 'edit')
+	Notice.edit();
+elif(action == 'delete')
+	Notice.delete();
+else
+	print 'invalid act';
+endif
+
+class Notice
+	// 显示公告列表
+	fun list()
+		global menus, querys;
+		data['title'] = '公告列表:';
+		setCurMenu(menus, 'notice.zl');
+		data['menus'] = menus;
+		db = Notice.initDB();
+		tmp = Mysql.fetchOne(db, "select count(1) as cnt from notice ");
+		total = bltInt(tmp['cnt']);
+		page = get_page(10, total, 10);
+		for(i=page['start']; i <= page['end'];i++)
+			cur = (page['curpage'] == i) ? ' class="active"' : '';
+			pages[] = '<li'+cur+'><a href="'+page['link']+'page='+i+'">'+i+'</a></li>';
+		endfor
+		data['page'] = page;
+		data['pages'] = pages;
+		data['notices'] = Mysql.fetchAll(db, "select * from notice order by id desc limit " + page['offset'] + "," + page['limit']);
+		print bltMustacheFileRender("tpl/notice_list.tpl", data);
+	endfun
+
+	// 初始化数据库连接
+	fun initDB()
+		global config;
+		db = bltArray();
+		Mysql.init(db, config, "tpl/error.tpl");
+		return db;
+	endfun
+
+	// 显示添加或编辑公告的页面
+	fun showAdd(db, data, isadd = TRUE)
+		global menus;
+		setCurMenu(menus, 'notice.zl');
+		csses = bltArray('notice_add.css');
+		data['csses'] = csses;
+		data['menus'] = menus;
+		data['title'] = isadd ? '添加公告' : '编辑公告';
+		data['act'] = isadd ? 'add' : 'edit';
+		print bltMustacheFileRender("tpl/notice_add.tpl",data);
+	endfun
+
+	// 校验数据
+	fun validate(db, posts, isadd = TRUE)
+		bltStr(&posts['title'], TRUE);
+		bltStr(&posts['description'], TRUE);
+		if(!posts['title'])
+			data['err_msg'] = '公告标题不能为空';
+		elif(!posts['description'])
+			data['err_msg'] = '公告详情不能为空';
+		elif(!isadd && !posts['id'])
+			data['err_msg'] = '无效的公告ID';
+		endif
+		if(data['err_msg'])
+			data['posts'] = posts;
+			if(posts['id'])
+				data['id'] = posts['id'];
+			endif
+			Notice.showAdd(db, data, isadd);
+			bltExit();
+		endif
+	endfun
+
+	// 添加公告
+	fun add()
+		posts = rqtGetBodyAsArray();
+		db = Notice.initDB();
+		if(posts['submit'])
+			Notice.validate(db, posts);
+			bltUnset(&posts['submit']);
+			posts['created_at'] = bltDate('%Y-%m-%d %H:%M:%S');
+			posts['updated_at'] = posts['created_at'];
+			Mysql.Insert(db, 'notice', posts);
+			data['success_msg'] = '添加公告成功';
+		endif
+		Notice.showAdd(db, data);
+	endfun
+
+	// 编辑公告
+	fun edit()
+		global querys;
+		posts = rqtGetBodyAsArray();
+		db = Notice.initDB();
+		if(posts['submit'])
+			id = bltInt(posts['id']);
+			Notice.validate(db, posts, FALSE);
+			bltUnset(&posts['submit']);
+			posts['updated_at'] = bltDate('%Y-%m-%d %H:%M:%S');
+			Mysql.Update(db, 'notice', posts, 'id=' + id);
+			data['success_msg'] = '编辑公告成功';
+		else
+			id = bltInt(querys['id']);
+		endif
+		data['posts'] = Mysql.fetchOne(db, "select * from notice where id='"+id+"'");
+		if(!bltCount(data['posts']))
+			data['err_msg'] = '无效的公告ID';
+			id = 0;
+		endif
+		data['id'] = id;
+		Notice.showAdd(db, data, FALSE);
+	endfun
+
+	// 删除公告
+	fun delete()
+		global querys;
+		db = Notice.initDB();
+		id = querys['id'] ? bltInt(querys['id']) : 0;
+		if(id <= 0) 
+			ajax_return('无效的公告id'); 
+		endif
+		Mysql.Exec(db, "DELETE FROM notice WHERE id="+id);
+		ajax_return();
+	endfun
+endclass

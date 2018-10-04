@@ -27,9 +27,6 @@ if(mysqlSetCharacterSet(con, "utf8"))
 endif
 
 // 创建后台管理用户表
-if(mysqlQuery(con, "DROP TABLE IF EXISTS users"))
-	finish_with_error(con);
-endif
 if(mysqlQuery(con, "CREATE TABLE users(
 					  id int NOT NULL AUTO_INCREMENT, 
 					  username varchar(255) NOT NULL DEFAULT '' COMMENT '用户名', 
@@ -41,9 +38,6 @@ if(mysqlQuery(con, "CREATE TABLE users(
 endif
 
 // 创建分类表
-if(mysqlQuery(con, "DROP TABLE IF EXISTS category"))
-	finish_with_error(con);
-endif
 if(mysqlQuery(con, "CREATE TABLE category(
 					  id int NOT NULL AUTO_INCREMENT, 
 					  name varchar(100) NOT NULL DEFAULT '' COMMENT '分类名', 
@@ -57,9 +51,6 @@ if(mysqlQuery(con, "CREATE TABLE category(
 endif
 
 // 创建文章表
-if(mysqlQuery(con, "DROP TABLE IF EXISTS article"))
-	finish_with_error(con);
-endif
 if(mysqlQuery(con, "CREATE TABLE article(
 	id int NOT NULL AUTO_INCREMENT, 
 	title varchar(100) NOT NULL DEFAULT '' COMMENT '文章标题', 
@@ -76,9 +67,6 @@ if(mysqlQuery(con, "CREATE TABLE article(
 endif
 
 // 创建评论表
-if(mysqlQuery(con, "DROP TABLE IF EXISTS comment"))
-	finish_with_error(con);
-endif
 if(mysqlQuery(con, "CREATE TABLE comment(
 	id int NOT NULL AUTO_INCREMENT, 
 	nickname varchar(80) NOT NULL DEFAULT '' COMMENT '评论人昵称',
@@ -90,6 +78,18 @@ if(mysqlQuery(con, "CREATE TABLE comment(
 	`created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
 	PRIMARY KEY (id)
 	) ENGINE=MyISAM DEFAULT CHARSET utf8 COLLATE utf8_general_ci COMMENT='评论表'"))
+	finish_with_error(con);
+endif
+
+// 创建公告表
+if(mysqlQuery(con, "CREATE TABLE notice(
+	id int NOT NULL AUTO_INCREMENT, 
+	title varchar(255) NOT NULL DEFAULT '' COMMENT '公告标题',
+	description varchar(2048) NOT NULL DEFAULT '' COMMENT '公告详细描述',
+	`created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
+	`updated_at` timestamp NULL DEFAULT NULL COMMENT '更新时间',
+	PRIMARY KEY (id)
+	) ENGINE=MyISAM DEFAULT CHARSET utf8 COLLATE utf8_general_ci COMMENT='公告表'"))
 	finish_with_error(con);
 endif
 
