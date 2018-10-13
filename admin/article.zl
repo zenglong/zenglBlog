@@ -11,6 +11,10 @@ elif(action == 'edit')
 	Article.edit();
 elif(action == 'delete')
 	Article.delete();
+elif(action == 'save_draft')
+	Article.saveDraft();
+elif(action == 'show_draft')
+	Article.showDraft();
 else
 	print 'invalid act';
 endif
@@ -160,5 +164,34 @@ class Article
 		endif
 		Mysql.Exec(db, "DELETE FROM article WHERE id="+id);
 		ajax_return();
+	endfun
+
+	// 保存草稿
+	fun saveDraft()
+		posts = rqtGetBodyAsArray();
+		if(posts['submit'])
+			bltUnset(&posts['submit']);
+			posts['time'] = bltDate('%Y-%m-%d %H:%M:%S');
+			db = Article.initDB();
+			draft = Mysql.fetchOne(db, "select * from article_draft order by id desc limit 0,1");
+			if(!bltCount(draft))
+				Mysql.Insert(db, 'article_draft', posts);
+			else
+				Mysql.Update(db, 'article_draft', posts, 'id=' + draft['id']);
+			endif
+		else
+			ajax_return('invalid posts');
+		endif
+		ajax_return();
+	endfun
+
+	// 查看草稿
+	fun showDraft()
+		db = Article.initDB();
+		data = Mysql.fetchOne(db, "select * from article_draft order by id desc limit 0,1");
+		if(!bltCount(data))
+			data['message'] = '暂无草稿';
+		endif
+		print bltMustacheFileRender("tpl/show_draft.tpl",data);
 	endfun
 endclass

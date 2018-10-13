@@ -16,12 +16,20 @@
 		<img {{#posts}}src="{{thumbnail}}"{{/posts}} style="display:none" id="thumbnail-img" />
 	</div>
 	<div class="form-group">
+		<label for="keywords">关键词:</label>
+		<input type="text" class="form-control" name="keywords" {{#posts}}value="{{keywords}}"{{/posts}} id="keywords" placeholder="关键词">
+	</div>
+	<div class="form-group">
 		<label for="description">描述:</label>
 		<textarea class="form-control" rows="5" name="description" id="description">{{#posts}}{{description}}{{/posts}}</textarea>
 	</div>
 	<div class="form-group">
 		<label for="content">内容:</label>
 		<textarea class="form-control" rows="20" cols="80" name="content" id="content">{{#posts}}{{content}}{{/posts}}</textarea>
+	</div>
+	<div class="form-group">
+		<button id="save-draft" class="btn btn-default" type="button" data-loading-text="保存中...">保存草稿</button> &nbsp;&nbsp; 
+		<a href="?act=show_draft" class="btn btn-default" target="_blank">查看草稿</a>
 	</div>
 	{{#category}}
 	<div class="form-group" id="p-cate">
@@ -52,7 +60,8 @@
 	CKEDITOR.replace( 'content' ,{
 		height: 300,
 		filebrowserUploadUrl: 'upload.zl?act=ckImage',
-		filebrowserUploadMethod: 'form'
+		filebrowserUploadMethod: 'form',
+		tabSpaces: 4
 	});
 	$('#thumbnail-upload').fileupload({
 		dataType: 'json',
@@ -77,6 +86,41 @@
 		fail: function() {
 			$('#thumbnail-span').text('上传失败');
 		}
+	});
+
+	$('#save-draft').click(function() {
+		$.ajax({
+			type: 'POST',
+			url: "article.zl?act=save_draft",
+			dataType: "json",
+			data: {
+				"title": $('#title').val(),
+				"description": $('#description').val(),
+				"keywords": $('#keywords').val(),
+				"thumbnail": $('#thumbnail-hidden').val(),
+				"author": $('#author').val(),
+				"cid": $('#pid').val(),
+				"content": CKEDITOR.instances.content.getData(),
+				"submit": "Submit"
+			},
+			beforeSend:function(){
+				$("#save-draft").button('loading');
+			},
+			success: function(data){
+				if(data.msg == 'success') {
+					alert('保存草稿成功');
+				}
+				else {
+					alert('保存草稿失败：' + data.errmsg);
+				}
+				$("#save-draft").button('reset');
+			},
+			//调用出错执行的函数
+			error: function(err){
+				alert('保存草稿失败：未知错误！');
+				$("#save-draft").button('reset');
+			}
+		});
 	});
 
 	$(document).ready(function() {

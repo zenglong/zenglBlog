@@ -93,6 +93,37 @@ if(mysqlQuery(con, "CREATE TABLE notice(
 	finish_with_error(con);
 endif
 
+// article表增加keywords字段
+if(mysqlQuery(con, "ALTER TABLE article ADD COLUMN keywords varchar(255) NOT NULL DEFAULT '' COMMENT '关键词' AFTER description"))
+	finish_with_error(con);
+endif
+
+// 将article表的title字段的最大字符数设置为255个字符
+if(mysqlQuery(con, "ALTER TABLE article MODIFY COLUMN title varchar(255) NOT NULL DEFAULT '' COMMENT '文章标题'"))
+	finish_with_error(con);
+endif
+
+// 将article表的description字段的最大字符数设置为1024个字符
+if(mysqlQuery(con, "ALTER TABLE article MODIFY COLUMN description varchar(1024) NOT NULL DEFAULT '' COMMENT '文章描述'"))
+	finish_with_error(con);
+endif
+
+// 创建文章草稿表
+if(mysqlQuery(con, "CREATE TABLE article_draft(
+	id int NOT NULL AUTO_INCREMENT, 
+	title varchar(255) NOT NULL DEFAULT '' COMMENT '文章标题', 
+	description varchar(1024) NOT NULL DEFAULT '' COMMENT '文章描述',
+	keywords varchar(255) NOT NULL DEFAULT '' COMMENT '关键词',
+	thumbnail varchar(255) NOT NULL DEFAULT '' COMMENT '文章缩略图', 
+	author varchar(100) NOT NULL DEFAULT '' COMMENT '文章作者',
+	cid int NOT NULL DEFAULT '0' COMMENT '分类ID', 
+	content mediumtext NOT NULL COMMENT '文章内容',
+	`time` timestamp NULL DEFAULT NULL COMMENT '保存草稿时间',
+	PRIMARY KEY (id)
+	) ENGINE=MyISAM DEFAULT CHARSET utf8 COLLATE utf8_general_ci COMMENT='文章草稿表'"))
+	finish_with_error(con);
+endif
+
 data['username'] = 'admin';
 data['nickname'] = '管理员';
 data['password'] = 'admin@123456';
