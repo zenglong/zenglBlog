@@ -4,8 +4,8 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>{{head_title}}</title>
-	{{#keywords}}<meta name="keywords" content="{{keywords}}" />{{/keywords}}
+	<title>{{head_title}}</title>{{#keywords}}
+	<meta name="keywords" content="{{keywords}}" />{{/keywords}}
 	{{#description}}<meta name="description" content="{{description}}" />{{/description}}
 	<!-- Bootstrap core CSS -->
 	<link href="/assets/css/bootstrap.min.css" rel="stylesheet">

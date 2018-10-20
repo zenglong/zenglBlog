@@ -25,25 +25,62 @@
 			<div>
 				{{{ content }}}
 			</div>
+			<div>
+				<a class="btn-try btn btn-primary btn-lg disabled" href="javascript:void(0);">上下篇</a>
+				<p>下一篇：
+					{{^next_article}}暂无{{/next_article}}
+					{{#next_article}}
+						{{#static}}
+							<a href="/a/{{format_created}}/{{id}}.html">{{ title }}</a>
+						{{/static}}
+						{{^static}}
+							<a href="?id={{id}}">{{ title }}</a>
+						{{/static}}
+					{{/next_article}}
+				</p>
+				<p>上一篇：
+					{{^prev_article}}暂无{{/prev_article}}
+					{{#prev_article}}
+						{{#static}}
+							<a href="/a/{{format_created}}/{{id}}.html">{{ title }}</a>
+						{{/static}}
+						{{^static}}
+							<a href="?id={{id}}">{{ title }}</a>
+						{{/static}}
+					{{/prev_article}}
+				</p>
+			</div>
+			<div>
+				<a class="btn-try btn btn-primary btn-lg disabled" href="javascript:void(0);">相关文章</a>
+				{{^rand_article}}暂无{{/rand_article}}
+				{{#rand_article}}
+					{{#static}}
+						<p><a href="/a/{{format_created}}/{{id}}.html">{{ title }}</a></p>
+					{{/static}}
+					{{^static}}
+						<p><a href="?id={{id}}">{{ title }}</a></p>
+					{{/static}}
+				{{/rand_article}}
+			</div>
 		</div>
 	</div>
 </div>
 {{#show_comment}}
-<div class="row comment-list">
-	<h3 style="margin-bottom: 15px">评论列表</h3>
+<div class="row comment-list left-right-pad">
+	<a class="btn-try btn btn-primary btn-lg disabled" href="javascript:void(0);">评论列表</a>
 	<span class="comment-loading"></span>
 </div>
 
-<div class="row text-center">
+<div class="row text-center left-right-pad">
 	<button type="button" class="btn btn-inverse comment-load-btn" style="display:none" data-loading-text="加载中...">
 		加载更多
 	</button>
 	<span class="no-more-comment-tip" style="display:none">没有更多评论了</span>
 </div>
 
-<div class="row">
+<div class="row left-right-pad">
 	<!-- Button trigger modal -->
-	<button type="button" class="btn btn-primary btn-lg comment-btn">
+	<button type="button" class="btn btn-default comment-btn">
 		发表评论
 	</button>
 
@@ -159,7 +196,7 @@
 					if(data.comments.length > 0) {
 						var comments_list_html = '';
 						for(var i=0; i < data.comments.length; i++) {
-							comments_list_html += '<div class="panel panel-primary">';
+							comments_list_html += '<div class="panel panel-default">';
 							comments_list_html += '<div class="panel-heading">'+data.comments[i].nickname + '&nbsp;&nbsp;<small class="author-create-at">' + data.comments[i].created_at +'</small></div>';
 							comments_list_html += '<div class="panel-body">'+data.comments[i].content.replace(/(?:\r\n|\r|\n)/g, '<br>')+'</div>';
 							comments_list_html += '</div>';

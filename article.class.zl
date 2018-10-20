@@ -4,7 +4,20 @@ class Article
 		global querys, categories, db, config;
 		id = bltInt(querys['id']);
 		data = Mysql.fetchOne(db, "select * from article where id='"+id+"'");
-		data['csses'] = bltArray('article-show.css');
+		common_sql = "'" + id + "' and cid='"+ data['cid'] +"' order by ";
+		prev_article = Mysql.fetchOne(db, "select id,title,DATE_FORMAT(created_at, '%Y%m') as format_created from article where id < " + common_sql + " id desc limit 0,1");
+		if(bltCount(prev_article) > 0)
+			data['prev_article'] = prev_article;
+		endif
+		next_article = Mysql.fetchOne(db, "select id,title,DATE_FORMAT(created_at, '%Y%m') as format_created from article where id > " + common_sql + " id asc limit 0,1");
+		if(bltCount(next_article) > 0)
+			data['next_article'] = next_article;
+		endif
+		rand_article = Mysql.fetchAll(db, "select id,title,DATE_FORMAT(created_at, '%Y%m') as format_created from article where id != " + common_sql + " RAND() limit 6");
+		if(bltCount(rand_article) > 0)
+			data['rand_article'] = rand_article;
+		endif
+		data['csses'] = bltArray('article-show.css?v=20181020');
 		data['head_js'] = bltArray('jquery.yestop.js');
 		data['static'] = static;
 		Article.SetCurCate(categories, data, data['cid']);

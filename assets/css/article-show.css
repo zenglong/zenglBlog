@@ -26,3 +26,16 @@
 	line-height: 1.3333333;
 	border-radius: 6px;
 }
+.btn-try {
+	display: block;
+	width: 100%;
+	border-radius: 0;
+	margin-bottom: 15px;
+	padding: 0px 10px;
+	text-align: left;
+	opacity: 1 !important;
+}
+.left-right-pad {
+	padding-left: 15px;
+	padding-right: 15px;
+}

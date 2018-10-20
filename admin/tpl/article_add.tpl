@@ -11,7 +11,7 @@
 	<div class="form-group">
 		<label for="thumbnail-upload">缩略图:</label>
 		<input id="thumbnail-upload" type="file" name="thumbnail_up" data-url="upload.zl?act=thumbImg">
-		<input id="thumbnail-hidden" type="hidden" name="thumbnail" {{#posts}}value="{{thumbnail}}"{{/posts}}>
+		<input id="thumbnail-hidden" type="text" name="thumbnail" {{#posts}}value="{{thumbnail}}"{{/posts}} class="form-control"><br/>
 		<span id="thumbnail-span"></span>
 		<img {{#posts}}src="{{thumbnail}}"{{/posts}} style="display:none" id="thumbnail-img" />
 	</div>
@@ -29,7 +29,8 @@
 	</div>
 	<div class="form-group">
 		<button id="save-draft" class="btn btn-default" type="button" data-loading-text="保存中...">保存草稿</button> &nbsp;&nbsp; 
-		<a href="?act=show_draft" class="btn btn-default" target="_blank">查看草稿</a>
+		<a href="?act=show_draft" class="btn btn-default" target="_blank">查看草稿</a> &nbsp;&nbsp;
+		<button id="restore-draft" class="btn btn-default" type="button" data-loading-text="恢复中...">从草稿恢复数据</button>
 	</div>
 	{{#category}}
 	<div class="form-group" id="p-cate">
@@ -123,12 +124,60 @@
 		});
 	});
 
+	$('#restore-draft').click(function() {
+		var r = confirm("是否从草稿中恢复数据?");
+		if(r !== true)
+			return false;
+		$.ajax({
+			type: 'POST',
+			url: "article.zl?act=get_draft",
+			dataType: "json",
+			beforeSend:function(){
+				$("#restore-draft").button('loading');
+			},
+			success: function(data){
+				if(typeof data.title == 'undefined') {
+					alert('恢复失败：暂无草稿');
+					return;
+				}
+				$('#title').val(data.title);
+				var $img = $('#thumbnail-img');
+				if(data.thumbnail != '') {
+					$img.attr("src", data.thumbnail);
+					$img.show();
+					$('#thumbnail-hidden').val(data.thumbnail);
+				}
+				else {
+					$('#thumbnail-img').hide();
+					$('#thumbnail-hidden').val("");
+				}
+				$('#thumbnail-span').text('');
+				$('#keywords').val(data.keywords);
+				$('#description').val(data.description);
+				CKEDITOR.instances.content.setData(data.content);
+				var cate_html = '<label>上级分类:<span id="p-cate-name">';
+				if(typeof data.cdata.name != 'undefined')
+					cate_html += data.cdata.name;
+				cate_html += '(cid=' + data.cid + ')</span></label>';
+				cate_html += '<input type="hidden" name="cid" value="'+ data.cid +'" id="pid">';
+				cate_html += '<a href="javascript:void(0)" id="reset_category" class="btn btn-default" data-loading-text="加载分类列表...">重置上级分类</a>';
+				$('#p-cate').html(cate_html);
+				$('#author').val(data.author);
+				$("#restore-draft").button('reset');
+				alert('恢复成功！');
+			},
+			//调用出错执行的函数
+			error: function(err){
+				alert('恢复失败：未知错误！');
+				$("#restore-draft").button('reset');
+			}
+		});
+	});
+
 	$(document).ready(function() {
-		{{#category}} {{! 如果设置了上级分类，则添加重置上级分类的脚本 }}	
-		$('#reset_category').click(function(){
+		$("#cate_form").on('click', "#reset_category", function(){
 			reset_category_ajax();
 		});
-		{{/category}}
 		var $img = $('#thumbnail-img');
 		if($img.attr('src') != '') { // 如果所略图不为空，则在一开始就显示出来
 			$img.show();

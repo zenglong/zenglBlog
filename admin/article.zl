@@ -15,6 +15,8 @@ elif(action == 'save_draft')
 	Article.saveDraft();
 elif(action == 'show_draft')
 	Article.showDraft();
+elif(action == 'get_draft')
+	Article.getDraft();
 else
 	print 'invalid act';
 endif
@@ -193,5 +195,14 @@ class Article
 			data['message'] = '暂无草稿';
 		endif
 		print bltMustacheFileRender("tpl/show_draft.tpl",data);
+	endfun
+
+	// 获取草稿，可用于恢复操作
+	fun getDraft()
+		db = Article.initDB();
+		data = Mysql.fetchOne(db, "select * from article_draft order by id desc limit 0,1");
+		data['cdata'] = Mysql.fetchOne(db, "select id,name from category where id=" + data['cid']);
+		rqtSetResponseHeader("Content-Type: application/json");
+		print bltJsonEncode(data);
 	endfun
 endclass
