@@ -59,7 +59,7 @@ class Upload
 			endif
 			dir = '/upload/image/' + bltDate('%Y%m%d') + '/'; // 根据当前日期，确定图片需要保存的目录
 			bltMkdir('..' + dir);
-			urlpath = dir + bltMd5(v['filename']) + ext; // 使用上传文件名的md5值来确定需要保存的图片的文件名
+			urlpath = dir + bltMd5(v['filename'] + bltDate('%Y-%m-%d %H:%M:%S')) + ext; // 使用上传文件名和时间的md5值来确定需要保存的图片的文件名
 			bltWriteFile('..' + urlpath, v['content_ptr'], v['length']);
 			wand = magickNewWand();
 			if(!magickReadImage(wand, '..' + urlpath))
@@ -89,8 +89,8 @@ class Upload
 			v = body_array['thumbnail_up'];
 			thumbdir = '/upload/thumb/' + bltDate('%Y%m%d') + '/'; // 根据当前日期，确定图片需要保存的目录
 			bltMkdir('..' + thumbdir);
-			tmp = '..' + thumbdir + 'tmp'; // TODO 多用户操作时可能会覆盖
-			urlpath = thumbdir + bltMd5(v['filename']); // 使用上传文件名的md5值来确定需要保存的图片的文件名
+			tmp = '..' + thumbdir + 'tmp' + bltDate('%Y_%m_%d_%H_%M_%S');
+			urlpath = thumbdir + bltMd5(v['filename'] + bltDate('%Y-%m-%d %H:%M:%S')); // 使用上传文件名和时间的md5值来确定需要保存的图片的文件名
 			if(v['type'] == 'image/gif')
 				framepath = urlpath + '-0.jpg'; // gif的第一帧对应的jpg
 			else
@@ -100,9 +100,11 @@ class Upload
 			bltWriteFile(tmp, v['content_ptr'], v['length']);
 			rqtSetResponseHeader("Content-Type: application/json");
 			wand = magickNewWand();
+			width = querys['width'] ? bltInt(querys['width']) : 200;
+			height = querys['height'] ? bltInt(querys['height']) : 150;
 			if(!magickReadImage(wand, tmp))
 				data['error'] = '上传失败，或者上传的不是有效的图片文件';
-			elif(!magickResizeImage(wand, 200, 150, "LanczosFilter"))
+			elif(!magickResizeImage(wand, width, height, "LanczosFilter"))
 				data['error'] = '生成缩略图失败，调整大小出错';
 			elif(!magickWriteImage(wand, '..' + urlpath))
 				data['error'] = '生成缩略图失败，写入失败';

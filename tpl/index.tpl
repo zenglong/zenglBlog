@@ -95,6 +95,27 @@
 	</div>
 	{{/items}}
 </div>
+{{#friendlinks_cnt}}
+<div class="row">
+	<div class="col-xs-18 col-sm-12">
+		<a class="btn-try btn btn-primary btn-lg" href="javascript:void(0);">友情链接</a>
+		{{#friendlinks}}
+		<div class="index-thumbnail">
+			<div class="thumbnail">
+				<a href="{{url}}" title="{{description}}" target="_blank">
+					{{#logo}}
+						<img src="{{ logo }}" alt="{{name}}"/>
+					{{/logo}}
+					{{^logo}}
+						{{name}}
+					{{/logo}}
+				</a>
+			</div>
+		</div>
+		{{/friendlinks}}
+	</div>
+</div>
+{{/friendlinks_cnt}}
 <script type="text/javascript">
 	$(document).ready(function () { 
 		$.fn.yestop({yes_image: '/assets/image/yestop.png'});

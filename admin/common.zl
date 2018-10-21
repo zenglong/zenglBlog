@@ -19,6 +19,7 @@ menus = bltJsonDecode('[
 	{"link": "article.zl", "name": "文章列表"},
 	{"link": "comment.zl", "name": "评论列表"},
 	{"link": "notice.zl", "name": "公告列表"},
+	{"link": "friendly.zl", "name": "友情链接"},
 	{"link": "make_html.zl", "name": "生成静态页面"},
 ]');
 

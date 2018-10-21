@@ -124,6 +124,20 @@ if(mysqlQuery(con, "CREATE TABLE article_draft(
 	finish_with_error(con);
 endif
 
+// 创建友情链接表
+if(mysqlQuery(con, "CREATE TABLE friendly_link(
+	id int NOT NULL AUTO_INCREMENT, 
+	name varchar(255) NOT NULL DEFAULT '' COMMENT '网站名称',
+	url varchar(1024) NOT NULL DEFAULT '' COMMENT '网站url',
+	description varchar(1024) NOT NULL DEFAULT '' COMMENT '网站描述',
+	logo varchar(1024) NOT NULL DEFAULT '' COMMENT '网站LOGO',
+	`created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
+	`updated_at` timestamp NULL DEFAULT NULL COMMENT '更新时间',
+	PRIMARY KEY (id)
+	) ENGINE=MyISAM DEFAULT CHARSET utf8 COLLATE utf8_general_ci COMMENT='友情链接表'"))
+	finish_with_error(con);
+endif
+
 data['username'] = 'admin';
 data['nickname'] = '管理员';
 data['password'] = 'admin@123456';
