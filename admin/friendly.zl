@@ -44,7 +44,7 @@ class Friendly
 		return db;
 	endfun
 
-	// 显示添加或编辑公告的页面
+	// 显示添加或编辑友情链接的页面
 	fun showAdd(db, data, isadd = TRUE)
 		global menus;
 		setCurMenu(menus, 'friendly.zl');

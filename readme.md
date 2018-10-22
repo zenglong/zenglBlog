@@ -15,11 +15,11 @@ session_expire = 1440; // 会话默认超时时间(以秒为单位)，可以根�
 session_cleaner_interval = 3600; // 会话文件清理进程的清理时间间隔(以秒为单位)
 ```
 
-然后运行zenglServer(v0.6.0的zenglBlog对zenglServer的最低版本要求是v0.13.0，需要开启mysql和magick模块)：
+然后运行zenglServer(v0.8.0的zenglBlog对zenglServer的最低版本要求是v0.13.0，需要开启mysql和magick模块)：
 
 ```
 zengl@zengl-ubuntu:~/zenglServer$ ./zenglServer -v
-zenglServer version: v0.12.0
+zenglServer version: v0.13.0
 zengl language version: v1.8.2
 zengl@zengl-ubuntu:~/zenglServer$ ./zenglServer
 zengl@zengl-ubuntu:~/zenglServer$ tail -f logfile 
@@ -49,10 +49,11 @@ config['db_port'] = 3306;        // 填写mysql数据库端口
 config['db_user'] = 'root';      // 填写mysql用户名
 config['db_passwd'] = '123456';  // 填写mysql密码
 config['db_name'] = 'testdb';    // 填写mysql数据库名
-config['version'] = '0.6.0';     // zenglBlog版本号，无需修改
+config['version'] = '0.8.0';     // zenglBlog版本号，无需修改
 config['comment'] = TRUE; // 是否开启评论
 config['site_name'] = 'zenglBlog'; // 站点名称
 config['site_desc'] = 'blog made by zengl language'; // 站点描述
+config['list_page_count'] = 10; // 前台列表页每页显示的文章数
 ```
 
 需要确保上面数据库配置的正确性，如果没有创建过testdb，就先创建该数据库
