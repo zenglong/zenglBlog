@@ -62,7 +62,12 @@
 </div>
 <script type="text/javascript">
 	$(document).ready(function () { 
-		$.fn.yestop({yes_image: '/assets/image/yestop.png'});
+		if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) { // 检测到手机端则使用小的返回顶部图片
+			$.fn.yestop({yes_image: '/assets/image/yestop_sm.png', yes_bottom:"15px", yes_right: "15px", yes_width: "36px", yes_height: "36px"});
+		}
+		else { // 否则使用大的返回顶部图片
+			$.fn.yestop({yes_image: '/assets/image/yestop.png'});
+		}
 	});
 </script>
 {{> /tpl/footer.tpl}}
